@@ -39,8 +39,8 @@ class UserControllerTest {
 
     @Test
     void testAddUser_EmailIsWrong() {
-        createUser("Login", 2000);
-        user.setEmail("user.host.com");
+        user = new User(1, "user.host.com", "Login", "Name",
+                LocalDate.of(2020, 1, 1));
         userController.add(user);
 
         assertThrows(ValidationException.class, () -> userController.add(user), "Wrong test");
@@ -53,20 +53,7 @@ class UserControllerTest {
         User user2 = new User(2, "user@host.com", "Login", "Name",
                 LocalDate.of(2000, 1, 1));
 
-        userController.add(user2);
-        assertEquals(userController.getAll().size(), 1, "Wrong test");
-    }
-
-
-    @Test
-    void testUpdateUser_EmailIsOccupiedByAnotherUser() {
-        createUser("Login", 2000);
-        userController.add(user);
-        User user2 = new User(2, "user2@host.com", "Login", "Name",
-                LocalDate.of(2000, 1, 1));
-        user2.setEmail("user@host.com");
-
-        assertThrows(ValidationException.class, () -> userController.update(user2), "Wrong test");
+        assertThrows(ValidationException.class, () -> userController.add(user2), "Wrong test");
     }
 
     @Test
@@ -86,6 +73,7 @@ class UserControllerTest {
         assertThrows(ValidationException.class, () -> userController.add(user), "Wrong test");
         assertEquals(userController.getAll().size(), 0, "Wrong test");
     }
+
 
     @Test
     void testAddUser_NameIsBlank() {

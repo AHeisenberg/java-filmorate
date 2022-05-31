@@ -52,11 +52,8 @@ public class UserController {
 
     @PutMapping
     public User update(@Valid @NotNull @RequestBody User user) {
-        if (users.containsKey(user.getId())
-                && (isExistsEmail(user) || users.get(user.getId()).getEmail().equals(user.getEmail()))) {
-// The user should not be able to update his email to a mail already existing in the system and belonging to the OTHER user
-            if (isValidDateOfBirthday(user)
-                   ) {
+        if (users.containsKey(user.getId())) {
+            if (isValidDateOfBirthday(user)) {
                 if (user.getName().isBlank()) {
                     user.setName(user.getLogin());
                     users.put(user.getId(), user);
@@ -67,7 +64,7 @@ public class UserController {
                 }
             }
         } else {
-            throw new ValidationException("This user or email doesn't exist");
+            throw new ValidationException("This user doesn't exist");
         }
         return user;
     }
@@ -87,7 +84,7 @@ public class UserController {
             if (u.getEmail().equals(user.getEmail())) {
                 res = false;
                 log.debug("The user  with E-Mail " + user.getEmail() + " already exists");
-//                throw new ValidationException("The E-Mail already exists");
+                throw new ValidationException("The E-Mail already exists");
             }
         }
         return res;
