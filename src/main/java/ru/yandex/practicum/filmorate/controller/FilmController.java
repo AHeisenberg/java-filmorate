@@ -20,6 +20,12 @@ import java.util.Map;
 @Slf4j
 @RequestMapping("/films")
 public class FilmController {
+
+    private static long id;
+
+    public static long getId() {
+        return ++id;
+    }
     private final Map<Long, Film> films = new HashMap<>();
     private static final LocalDate DATE_OF_FILM_RELEASE = LocalDate.of(1895, Month.DECEMBER, 28);
 
@@ -36,6 +42,7 @@ public class FilmController {
     public Film add(@Valid @NotNull @RequestBody Film film) {
         if (!films.containsKey(film.getId())) {
             if (isValidReleaseDate(film) && isValidNameAndDescription(film) && isValidDuration(film)) {
+                film.setId(getId());
                 films.put(film.getId(), film);
                 log.debug("The movie was added with id={}", film.getId());
             }

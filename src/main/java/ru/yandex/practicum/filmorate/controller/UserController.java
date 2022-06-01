@@ -19,6 +19,13 @@ import java.util.Map;
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
+
+    private static long id;
+
+    public static long getId() {
+        return ++id;
+    }
+
     private final Map<Long, User> users = new HashMap<>();
 
     @GetMapping
@@ -35,10 +42,12 @@ public class UserController {
         if (!users.containsKey(user.getId())) {
             if (isValidDateOfBirthday(user) && isExistsEmail(user)) {
                 if (user.getName().isBlank()) {
+                    user.setId(getId());
                     user.setName(user.getLogin());
                     users.put(user.getId(), user);
                     log.debug("The user has been added with name=login and id={}", user.getId());
                 } else {
+                    user.setId(getId());
                     users.put(user.getId(), user);
                     log.debug("The user has been added with id={}", user.getId());
                 }

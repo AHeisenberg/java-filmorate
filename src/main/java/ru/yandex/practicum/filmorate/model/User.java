@@ -15,7 +15,7 @@ import java.time.LocalDate;
 public class User {
 
     @NotNull
-    private final long id;
+    private long id;
 
     @NotNull
     @NotBlank
