@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -53,14 +54,16 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@Valid @NotNull @RequestBody Film film) {
+    public Film update(@Valid @NotNull @RequestBody Film film) throws FilmNotFoundException {
         if (films.containsKey(film.getId())) {
             if (isValidReleaseDate(film) && isValidNameAndDescription(film) && isValidDuration(film)) {
                 films.put(film.getId(), film);
                 log.debug("The movie was updated with id={}", film.getId());
             }
         } else {
-            throw new ValidationException("This movie doesn't exist");
+            log.error("This movie doesn't exist");
+
+            throw new FilmNotFoundException(film);
         }
         return film;
     }

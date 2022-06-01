@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -60,7 +61,7 @@ public class UserController {
 
 
     @PutMapping
-    public User update(@Valid @NotNull @RequestBody User user) {
+    public User update(@Valid @NotNull @RequestBody User user) throws UserNotFoundException {
         if (users.containsKey(user.getId())) {
             if (isValidDateOfBirthday(user)) {
                 if (user.getName().isBlank()) {
@@ -73,7 +74,8 @@ public class UserController {
                 }
             }
         } else {
-            throw new ValidationException("This user doesn't exist");
+            log.error("This user doesn't exist");
+            throw new UserNotFoundException(user);
         }
         return user;
     }

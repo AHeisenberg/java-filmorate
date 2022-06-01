@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -57,7 +58,7 @@ class UserControllerTest {
     }
 
     @Test
-    void testUpdateUser_AllRight() {
+    void testUpdateUser_AllRight() throws UserNotFoundException {
         createUser("Login", 2000);
         userController.add(user);
         user.setName("NewName");
