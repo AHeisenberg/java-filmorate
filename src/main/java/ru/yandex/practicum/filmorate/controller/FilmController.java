@@ -21,12 +21,12 @@ import java.util.Map;
 @Slf4j
 @RequestMapping("/films")
 public class FilmController {
-
     private static long id;
 
     public static long getId() {
         return ++id;
     }
+
     private final Map<Long, Film> films = new HashMap<>();
     private static final LocalDate DATE_OF_FILM_RELEASE = LocalDate.of(1895, Month.DECEMBER, 28);
 

@@ -59,7 +59,6 @@ public class UserController {
         return user;
     }
 
-
     @PutMapping
     public User update(@Valid @NotNull @RequestBody User user) throws UserNotFoundException {
         if (users.containsKey(user.getId())) {
@@ -80,7 +79,6 @@ public class UserController {
         return user;
     }
 
-
     private boolean isValidDateOfBirthday(User user) {
         if (user.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException("The date of birth is wrong - it should be earlier today");
@@ -94,7 +92,7 @@ public class UserController {
         for (User u : users.values()) {
             if (u.getEmail().equals(user.getEmail())) {
                 res = false;
-                log.debug("The user  with E-Mail " + user.getEmail() + " already exists");
+                log.error("The user with E-Mail={} already exists", user.getEmail());
                 throw new ValidationException("The E-Mail already exists");
             }
         }
@@ -106,5 +104,4 @@ public class UserController {
         log.debug(e.getMessage());
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
-
 }

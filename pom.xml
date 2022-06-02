@@ -6,7 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.6.7</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
 
     <groupId>ru.yandex.practicum</groupId>
@@ -60,6 +60,3 @@
     </build>
 
 </project>
-
-
-<!--        <description>Film rating service from Andreas</description>-->

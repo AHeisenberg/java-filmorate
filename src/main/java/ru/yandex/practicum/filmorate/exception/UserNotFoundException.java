@@ -10,5 +10,4 @@ public class UserNotFoundException extends Exception {
     public UserNotFoundException(User user) {
         super("User not found: id=" + user.getId() + ", login=" + user.getLogin());
     }
-
 }
