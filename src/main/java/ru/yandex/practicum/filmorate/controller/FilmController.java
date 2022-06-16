@@ -1,106 +1,73 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
+@RequestMapping("/")
 @Slf4j
-@RequestMapping("/films")
 public class FilmController {
-    private static long id;
 
-    public static long getId() {
-        return ++id;
+    private final FilmStorage filmStorage;
+    private final FilmService filmService;
+
+    @Autowired
+    public FilmController(FilmStorage filmStorage, FilmService filmService) {
+        this.filmStorage = filmStorage;
+        this.filmService = filmService;
     }
 
-    private final Map<Long, Film> films = new HashMap<>();
-    private static final LocalDate DATE_OF_FILM_RELEASE = LocalDate.of(1895, Month.DECEMBER, 28);
+    @PostMapping(value = "/films")
+    public Film add(@RequestBody Film film) {
+        return filmStorage.addFilm(film);
+    }
 
-    @GetMapping
+    @PutMapping(value = "/films")
+    public Film update(@RequestBody Film film) {
+        return filmStorage.updateFilm(film);
+    }
+
+    @GetMapping("/films/{id}")
+    public Film getFilm(@PathVariable String id) {
+        return filmStorage.getFilm(Long.valueOf(id));
+    }
+
+    @GetMapping(value = "/films")
     public List<Film> getAll() {
-        return new ArrayList<>(films.values());
+        return filmStorage.getAllFilms();
     }
 
-    public void deleteAllFilms() {
-        films.clear();
-    }
 
-    @PostMapping
-    public Film add(@Valid @NotNull @RequestBody Film film) {
-        if (!films.containsKey(film.getId())) {
-            if (isValidReleaseDate(film) && isValidNameAndDescription(film) && isValidDuration(film)) {
-                film.setId(getId());
-                films.put(film.getId(), film);
-                log.debug("The movie was added with id={}", film.getId());
-            }
+    @PutMapping("/films/{id}/like/{userId}")
+    public Film addLike(
+            @PathVariable Long id,
+            @PathVariable Long userId) {
+        if ((id != null) && (userId != null)) {
+            return filmService.addLike(id, userId);
         } else {
-            throw new ValidationException("This movie already exists");
+            return null;
         }
-        return film;
     }
 
-    @PutMapping
-    public Film update(@Valid @NotNull @RequestBody Film film) throws FilmNotFoundException {
-        if (films.containsKey(film.getId())) {
-            if (isValidReleaseDate(film) && isValidNameAndDescription(film) && isValidDuration(film)) {
-                films.put(film.getId(), film);
-                log.debug("The movie was updated with id={}", film.getId());
-            }
+    @DeleteMapping("/films/{id}/like/{userId}")
+    public Film removeLike(
+            @PathVariable Long id,
+            @PathVariable Long userId) {
+        if ((id != null) && (userId != null)) {
+            return filmService.removeLike(id, userId);
         } else {
-            log.error("This movie doesn't exist");
-
-            throw new FilmNotFoundException(film);
-        }
-        return film;
-    }
-
-    private boolean isValidReleaseDate(Film film) {
-        if (film.getReleaseDate().isBefore(DATE_OF_FILM_RELEASE)) {
-            throw new ValidationException("The film's release date should be after: " + DATE_OF_FILM_RELEASE);
-        } else {
-            return true;
+            return null;
         }
     }
 
-    private boolean isValidNameAndDescription(Film film) {
-        if (film.getDescription().isEmpty() || film.getDescription().isBlank()) {
-            throw new ValidationException("The film's description is blank");
-        }
-        if (film.getDescription().length() > 200) {
-            throw new ValidationException("The film's description is too long");
-        }
-        if (film.getName().isBlank() || film.getName().isEmpty()) {
-            throw new ValidationException("The film's name is blank");
-        } else {
-            return true;
-        }
-    }
-
-    private boolean isValidDuration(Film film) {
-        if (film.getDuration() <= 0) {
-            throw new ValidationException("The film's duration is negative or 0");
-        } else {
-            return true;
-        }
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<String> exceptionHandler(ValidationException e) {
-        log.debug(e.getMessage());
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @GetMapping("/films/popular")
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
+        return filmService.findPopularFilms(count);
     }
 }

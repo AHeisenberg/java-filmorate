@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -18,11 +20,14 @@ class FilmControllerTest {
     @Autowired
     private FilmController filmController;
 
+    @Autowired
+    private FilmStorage filmStorage;
+
     private Film film;
 
     @AfterEach
     private void afterEach() {
-        filmController.deleteAllFilms();
+        filmStorage.deleteAllFilms();
     }
 
     private void createFilm(String description, int yearOfRelease) {
