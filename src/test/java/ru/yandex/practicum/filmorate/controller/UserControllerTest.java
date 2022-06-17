@@ -46,20 +46,9 @@ class UserControllerTest {
     void testAddUser_EmailIsWrong() {
         user = new User(1, "user.host.com", "Login", "Name",
                 LocalDate.of(2020, 1, 1));
-//        userController.add(user);
-
         assertThrows(ValidationException.class, () -> userController.add(user), "Wrong test");
     }
 
-//    @Test
-//    void testAddUser_EmailIsExist() {
-//        createUser("Login", 2000);
-//        userController.add(user);
-//        User user2 = new User(2, "user@host.com", "Login", "Name",
-//                LocalDate.of(2000, 1, 1));
-//
-//        assertThrows(ValidationException.class, () -> userController.add(user2), "Wrong test");
-//    }
 
     @Test
     void testUpdateUser_AllRight() throws UserNotFoundException {
