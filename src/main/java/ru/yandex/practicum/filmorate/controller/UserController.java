@@ -1,107 +1,87 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
+@RequestMapping("/")
 @Slf4j
-@RequestMapping("/users")
 public class UserController {
 
-    private static long id;
+    private final UserStorage userStorage;
+    private final UserService userService;
 
-    public static long getId() {
-        return ++id;
+    @Autowired
+    public UserController(UserStorage userStorage, UserService userService) {
+        this.userStorage = userStorage;
+        this.userService = userService;
     }
 
-    private final Map<Long, User> users = new HashMap<>();
-
-    @GetMapping
+    @GetMapping(value = "/users")
     public List<User> getAll() {
-        return new ArrayList<>(users.values());
+        return userStorage.getAllUsers();
     }
 
-    public void deleteAllUsers() {
-        users.clear();
+    @GetMapping("/users/{id}")
+    public User getUser(@PathVariable String id) {
+        return userStorage.getUser(Long.valueOf(id));
     }
 
-    @PostMapping
-    public User add(@Valid @NotNull @RequestBody User user) {
-        if (!users.containsKey(user.getId())) {
-            if (isValidDateOfBirthday(user) && isExistsEmail(user)) {
-                if (user.getName().isBlank()) {
-                    user.setId(getId());
-                    user.setName(user.getLogin());
-                    users.put(user.getId(), user);
-                    log.debug("The user has been added with name=login and id={}", user.getId());
-                } else {
-                    user.setId(getId());
-                    users.put(user.getId(), user);
-                    log.debug("The user has been added with id={}", user.getId());
-                }
-            }
+    @PostMapping(value = "/users")
+    public User add(@RequestBody User user) {
+        return userStorage.addUser(user);
+    }
+
+    @PutMapping(value = "/users")
+    public User update(@RequestBody User user) {
+        return userStorage.updateUser(user);
+    }
+
+    @PutMapping("/users/{id}/friends/{friendId}")
+    public User addFriend(
+            @PathVariable Long id,
+            @PathVariable Long friendId) {
+        if ((id != null) && (friendId != null)) {
+
+            return userService.addFriend(id, friendId);
         } else {
-            throw new ValidationException("This user  or email already exists");
+            return null;
         }
-        return user;
     }
 
-    @PutMapping
-    public User update(@Valid @NotNull @RequestBody User user) throws UserNotFoundException {
-        if (users.containsKey(user.getId())) {
-            if (isValidDateOfBirthday(user)) {
-                if (user.getName().isBlank()) {
-                    user.setName(user.getLogin());
-                    users.put(user.getId(), user);
-                    log.debug("The user has been updated with name=login and id={}", user.getId());
-                } else {
-                    users.put(user.getId(), user);
-                    log.debug("The user has been updated with id={}", user.getId());
-                }
-            }
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public User removeFriend(
+            @PathVariable Long id,
+            @PathVariable Long friendId) {
+        if ((id != null) && (friendId != null)) {
+
+            return userService.removeFriend(id, friendId);
         } else {
-            log.error("This user doesn't exist");
-            throw new UserNotFoundException(user);
+            return null;
         }
-        return user;
     }
 
-    private boolean isValidDateOfBirthday(User user) {
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("The date of birth is wrong - it should be earlier today");
+    @GetMapping("/users/{id}/friends")
+    public List<User> getUserFriends(@PathVariable Long id) {
+        return userService.getUserFriends(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(
+            @PathVariable Long id,
+            @PathVariable Long otherId) {
+        if ((id != null) && (otherId != null)) {
+
+            return userService.getCommonFriends(id, otherId);
         } else {
-            return true;
+            return null;
         }
     }
 
-    private boolean isExistsEmail(User user) {
-        boolean res = true;
-        for (User u : users.values()) {
-            if (u.getEmail().equals(user.getEmail())) {
-                res = false;
-                log.error("The user with E-Mail={} already exists", user.getEmail());
-                throw new ValidationException("The E-Mail already exists");
-            }
-        }
-        return res;
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<String> exceptionHandler(ValidationException e) {
-        log.debug(e.getMessage());
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
 }
