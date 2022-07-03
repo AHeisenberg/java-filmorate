@@ -30,7 +30,13 @@ public class Film {
     @NotNull
     private Integer duration;
 
+    private Genre genre;
+
+    private RatingMPA ratingMPA;
+
     private Set<Long> likes = new HashSet<>();
+
+    Set<Genre> genres;
 
     public Film(long id, String name, String description, LocalDate releaseDate, Integer duration) {
         this.id = id;

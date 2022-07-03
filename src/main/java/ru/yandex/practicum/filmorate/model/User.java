@@ -30,7 +30,7 @@ public class User {
     @NotNull
     private LocalDate birthday;
 
-    private Set<Long> friends = new HashSet<>();
+    private Set<Long> friends = new HashSet<>(); // Map<Long, Boolean> friends = new HashMap();?
 
     public User(long id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
