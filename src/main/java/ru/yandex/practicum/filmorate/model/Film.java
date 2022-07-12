@@ -30,7 +30,7 @@ public class Film {
 
     private Set<Long> likes = new HashSet<>();
 
-    Set<Genre> genres;
+    private Set<Genre> genres;
 
     public Film(long id, String name, String description, LocalDate releaseDate, Integer duration) {
         this.id = id;
