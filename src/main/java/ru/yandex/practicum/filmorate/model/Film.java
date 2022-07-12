@@ -11,22 +11,16 @@ import java.util.Set;
 
 @Data
 public class Film {
-
-
     @NotNull
     private long id;
-
     @NotNull
     private String name;
-
     @NotNull
     @Size(max = 200)
     @NotBlank
     private String description;
-
     @NotNull
     private LocalDate releaseDate;
-
     @NotNull
     private Integer duration;
 
