@@ -1,63 +1,76 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.filmorate.service.UserValidator.checkUser;
 
 @Service
 public class UserService {
 
-    final private UserStorage userStorage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) { // inMemoryUserStorage
         this.userStorage = userStorage;
     }
 
-    public User addFriend(Long id, Long friendId) {
-        User user = userStorage.getUser(id);
-        User friend = userStorage.getUser(friendId);
-        user.getFriends().add(friendId);
-        friend.getFriends().add(id);
-        return user;
+    public User addUser(User user) {
+        checkUser(user);
+        return userStorage.addUser(user);
     }
 
-    public User removeFriend(Long id, Long friendId) {
-        User user = userStorage.getUser(id);
-        User friend = userStorage.getUser(friendId);
+    public Optional<User> updateUser(User user) {
+        return userStorage.updateUser(user);
+    }
 
-        if (user.getFriends().contains(friendId)) {
-            user.getFriends().remove(friendId);
-        } else {
-            throw new UserNotFoundException();
+    public List<User> getAllUsers() {
+        return userStorage.getAllUsers();
+    }
+
+    public Optional<User> getUser(long id) {
+        return userStorage.getUser(id);
+    }
+
+    public boolean deleteUser(long id) {
+        return userStorage.deleteUser(id);
+    }
+
+    public boolean addFriend(long id, long friendId) {
+        Optional<User> optUser = userStorage.getUser(id);
+        Optional<User> optFriend = userStorage.getUser(friendId);
+
+        if (optUser.isPresent() && optFriend.isPresent()) {
+            return userStorage.addFriend(id, friendId);
         }
+        return false;
+    }
 
-        if (friend.getFriends().contains(id)) {
-            friend.getFriends().remove(id);
-        } else {
-            throw new UserNotFoundException();
+    public boolean removeFriend(long id, long friendId) {
+        Optional<User> user = userStorage.getUser(id);
+        Optional<User> friend = userStorage.getUser(friendId);
+
+        if (user.isPresent() && friend.isPresent()) {
+            return userStorage.removeFriend(id, friendId);
         }
-
-        return user;
+        return false;
     }
 
-    public List<User> getUserFriends(Long id) {
-        return userStorage.getUser(id).getFriends().stream().map(userStorage::getUser).collect(Collectors.toList());
+    public List<User> getUserFriends(long id) {
+        return userStorage.getUserFriends(id);
     }
 
-    public List<User> getCommonFriends(Long id, Long otherId) {
-
-        Set<Long> userFriends = userStorage.getUser(id).getFriends();
-        Set<Long> friendFriends = userStorage.getUser(otherId).getFriends();
-
-        return userFriends.stream()
-                .filter(friendFriends::contains)
-                .map(userStorage::getUser).collect(Collectors.toList());
+    public List<User> getCommonFriends(long id, long otherId) {
+        return getUserFriends(id).stream()
+                .filter(getUserFriends(otherId)::contains)
+                .collect(Collectors.toList());
     }
+
 }

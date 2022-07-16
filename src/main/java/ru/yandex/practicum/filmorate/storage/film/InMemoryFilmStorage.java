@@ -5,28 +5,26 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static ru.yandex.practicum.filmorate.service.FilmValidator.checkFilm;
 
 @Component
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
-
     private static long id;
 
-    public static long getId() {
+    private long getId() {
         return ++id;
     }
 
-    private final Map<Long, Film> films = new HashMap<>();
+    private final Map<Long, Film> films;
 
-    public void deleteAllFilms() {
-        log.info("All films have been deleted");
-        films.clear();
+    private final Map<Long, Set<Long>> likes;
+
+    public InMemoryFilmStorage() {
+        films = new HashMap<>();
+        likes = new HashMap<>();
     }
 
     @Override
@@ -34,19 +32,18 @@ public class InMemoryFilmStorage implements FilmStorage {
         checkFilm(film);
         film.setId(getId());
         films.put(film.getId(), film);
-        log.info("The movie was added with id={}", film.getId());
         return film;
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public Optional<Film> updateFilm(Film film) {
         if (!films.containsKey(film.getId())) {
             throw new FilmNotFoundException();
         }
         checkFilm(film);
         log.info("The movie was updated with id={}", film.getId());
         films.put(film.getId(), film);
-        return film;
+        return Optional.of(film);
     }
 
     @Override
@@ -55,11 +52,39 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilm(Long id) {
+    public Optional<Film> getFilm(long id) {
         Film film = films.get(id);
         if (film == null) {
             throw new FilmNotFoundException();
         }
-        return film;
+        return Optional.of(film);
+    }
+
+    @Override
+    public boolean deleteFilm(long id) {
+        return films.remove(id) != null;
+    }
+
+    @Override
+    public boolean removeLike(long id, long userId) {
+        if (likes.containsKey(id)) {
+            likes.get(id).remove(userId);
+            films.get(id).setLikesCount(likes.get(id).size());
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean addLike(long id, long userId) {
+        if (likes.containsKey(id)) {
+            likes.get(id).add(userId);
+        } else {
+            Set<Long> filmLikes = new HashSet<>();
+            filmLikes.add(userId);
+            likes.put(id, filmLikes);
+        }
+        films.get(id).setLikesCount(likes.get(id).size());
+        return true;
     }
 }
