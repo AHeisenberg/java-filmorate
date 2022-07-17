@@ -16,29 +16,29 @@ import java.util.Optional;
 
 @Repository
 public class UserDbStorage implements UserStorage {
-    public static final String SQL_ADD_USER = "INSERT INTO users(email, login, name, birthday) " +
+    private static final String SQL_ADD_USER = "INSERT INTO users(email, login, name, birthday) " +
             "VALUES (?, ?, ?, ?)";
-    public static final String SQL_UPDATE_USER = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? " +
+    private static final String SQL_UPDATE_USER = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? " +
             "WHERE user_id = ?";
-    public static final String SQL_UPDATE_USER_FRIENDS_STATUS = "DELETE FROM friends_status WHERE to_user_id = ? OR from_user_id = ?";
-    public static final String SQL_DELETE_USER = "DELETE FROM users WHERE user_id = ?";
-    public static final String SQL_GET_USERS = "SELECT * FROM users";
-    public static final String SQL_GET_USER = "SELECT * FROM users WHERE user_id = ?";
-    public static final String SQL_GET_USER_FRIENDS = "SELECT * FROM friends_status f " +
+    private static final String SQL_UPDATE_USER_FRIENDS_STATUS = "DELETE FROM friends_status WHERE to_user_id = ? OR from_user_id = ?";
+    private static final String SQL_DELETE_USER = "DELETE FROM users WHERE user_id = ?";
+    private static final String SQL_GET_USERS = "SELECT * FROM users";
+    private static final String SQL_GET_USER = "SELECT * FROM users WHERE user_id = ?";
+    private static final String SQL_GET_USER_FRIENDS = "SELECT * FROM friends_status f " +
             "LEFT JOIN users u ON f.to_user_id = u.user_id " +
             "WHERE from_user_id = ?";
-    public static final String SQL_GET_USER_FRIENDS_MUTUAL = "SELECT * FROM friends_status f " +
+    private static final String SQL_GET_USER_FRIENDS_MUTUAL = "SELECT * FROM friends_status f " +
             "LEFT JOIN users u ON f.from_user_id = u.user_id " +
             "WHERE to_user_id = ? AND accepted = ?";
-    public static final String SQL_HAS_MUTUAL_CONNECTION = "SELECT * FROM friends_status WHERE (from_user_id = ? AND to_user_id = ? AND accepted = ?) " +
+    private static final String SQL_HAS_MUTUAL_CONNECTION = "SELECT * FROM friends_status WHERE (from_user_id = ? AND to_user_id = ? AND accepted = ?) " +
             "OR (from_user_id = ? AND to_user_id = ? AND accepted = ?) ";
-    public static final String SQL_HAS_CONNECTION = "SELECT * FROM friends_status WHERE (from_user_id = ? AND to_user_id = ?) " +
+    private static final String SQL_HAS_CONNECTION = "SELECT * FROM friends_status WHERE (from_user_id = ? AND to_user_id = ?) " +
             "OR (from_user_id = ? AND to_user_id = ?) ";
-    public static final String SQL_ADD_CONNECTION = "INSERT INTO friends_status(to_user_id, from_user_id, accepted) " +
+    private static final String SQL_ADD_CONNECTION = "INSERT INTO friends_status(to_user_id, from_user_id, accepted) " +
             "values (?, ?, ?)";
-    public static final String SQL_DELETE_CONNECTION = "DELETE FROM friends_status WHERE (from_user_id = ? AND to_user_id = ?) OR " +
+    private static final String SQL_DELETE_CONNECTION = "DELETE FROM friends_status WHERE (from_user_id = ? AND to_user_id = ?) OR " +
             "(from_user_id = ? AND to_user_id = ?)";
-    public static final String SQL_ADD_FRIEND = "UPDATE friends_status SET accepted = ? WHERE (to_user_id = ? AND from_user_id = ?) " +
+    private static final String SQL_ADD_FRIEND = "UPDATE friends_status SET accepted = ? WHERE (to_user_id = ? AND from_user_id = ?) " +
             "OR (to_user_id = ? AND from_user_id = ?)";
     private final JdbcTemplate jdbcTemplate;
 

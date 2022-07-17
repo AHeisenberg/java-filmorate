@@ -16,11 +16,11 @@ import java.util.Optional;
 @Component
 public class MPADbStorage implements MPAStorage {
 
-    public static final String SQL_ADD_RATING = "INSERT INTO ratings_mpa(name) VALUES (?)";
-    public static final String SQL_UPDATE_RATING = "UPDATE ratings_mpa SET name = ? WHERE rating_id = ?";
-    public static final String SQL_GET_RATINGS = "SELECT * FROM ratings_mpa ORDER BY rating_id";
-    public static final String SQL_GET_RATING = "SELECT * FROM ratings_mpa WHERE rating_id = ?";
-    public static final String SQL_DELETE_RATING = "DELETE FROM ratings_mpa where rating_id = ?";
+    private static final String SQL_ADD_RATING = "INSERT INTO ratings_mpa(name) VALUES (?)";
+    private static final String SQL_UPDATE_RATING = "UPDATE ratings_mpa SET name = ? WHERE rating_id = ?";
+    private static final String SQL_GET_RATINGS = "SELECT * FROM ratings_mpa ORDER BY rating_id";
+    private static final String SQL_GET_RATING = "SELECT * FROM ratings_mpa WHERE rating_id = ?";
+    private static final String SQL_DELETE_RATING = "DELETE FROM ratings_mpa where rating_id = ?";
     private final JdbcTemplate jdbcTemplate;
 
     public MPADbStorage(JdbcTemplate jdbcTemplate) {

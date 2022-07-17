@@ -15,11 +15,11 @@ import java.util.Optional;
 @Repository
 public class GenreDbStorage implements GenreStorage {
 
-    public static final String SQL_ADD_GENRE = "INSERT INTO genres(name) VALUES (?)";
-    public static final String SQL_UPDATE_GENRE = "UPDATE genres SET name = ? WHERE genre_id = ?";
-    public static final String SQL_GET_GENRES = "SELECT * FROM genres ORDER BY genre_id";
-    public static final String SQL_GET_GENRE = "SELECT * FROM genres where genre_id = ?";
-    public static final String SQL_DELETE_GENRE = "DELETE FROM genres where genre_id = ?";
+    private static final String SQL_ADD_GENRE = "INSERT INTO genres(name) VALUES (?)";
+    private static final String SQL_UPDATE_GENRE = "UPDATE genres SET name = ? WHERE genre_id = ?";
+    private static final String SQL_GET_GENRES = "SELECT * FROM genres ORDER BY genre_id";
+    private static final String SQL_GET_GENRE = "SELECT * FROM genres where genre_id = ?";
+    private static final String SQL_DELETE_GENRE = "DELETE FROM genres where genre_id = ?";
     private final JdbcTemplate jdbcTemplate;
 
     public GenreDbStorage(JdbcTemplate jdbcTemplate) {
