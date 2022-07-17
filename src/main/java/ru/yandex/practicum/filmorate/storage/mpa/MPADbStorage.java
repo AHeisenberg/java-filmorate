@@ -16,6 +16,11 @@ import java.util.Optional;
 @Component
 public class MPADbStorage implements MPAStorage {
 
+    public static final String SQL_ADD_RATING = "INSERT INTO ratings_mpa(name) VALUES (?)";
+    public static final String SQL_UPDATE_RATING = "UPDATE ratings_mpa SET name = ? WHERE rating_id = ?";
+    public static final String SQL_GET_RATINGS = "SELECT * FROM ratings_mpa ORDER BY rating_id";
+    public static final String SQL_GET_RATING = "SELECT * FROM ratings_mpa WHERE rating_id = ?";
+    public static final String SQL_DELETE_RATING = "DELETE FROM ratings_mpa where rating_id = ?";
     private final JdbcTemplate jdbcTemplate;
 
     public MPADbStorage(JdbcTemplate jdbcTemplate) {
@@ -24,10 +29,9 @@ public class MPADbStorage implements MPAStorage {
 
     @Override
     public RatingMPA addRatingMPA(RatingMPA mpa) {
-        String sql = "INSERT INTO ratings_mpa(name) VALUES (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"rating_id"});
+            PreparedStatement stmt = connection.prepareStatement(SQL_ADD_RATING, new String[]{"rating_id"});
             stmt.setString(1, mpa.getName());
             return stmt;
         }, keyHolder);
@@ -37,28 +41,25 @@ public class MPADbStorage implements MPAStorage {
 
     @Override
     public Optional<RatingMPA> updateRatingMPA(RatingMPA mpa) {
-        String sql = "UPDATE ratings_mpa SET name = ? WHERE rating_id = ?";
-        boolean isUpdated = jdbcTemplate.update(sql, mpa.getName(), mpa.getId()) > 0;
+        boolean isUpdated = jdbcTemplate.update(SQL_UPDATE_RATING, mpa.getName(), mpa.getId()) > 0;
         return isUpdated ? Optional.of(mpa) : Optional.empty();
     }
 
     @Override
     public List<RatingMPA> getAllRatings() {
-        String sql = "SELECT * FROM ratings_mpa ORDER BY rating_id";
-        return jdbcTemplate.query(sql, this::mapRowToMPA);
+        return jdbcTemplate.query(SQL_GET_RATINGS, this::mapRowToMPA);
     }
 
     @Override
     public Optional<RatingMPA> getRatingMPA(long id) {
-        String sql = "SELECT * FROM ratings_mpa WHERE rating_id = ?";
+        String sql = SQL_GET_RATING;
         List<RatingMPA> result = jdbcTemplate.query(sql, this::mapRowToMPA, id);
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     @Override
     public boolean deleteRatingMPA(long id) {
-        String sql = "DELETE FROM ratings_mpa where rating_id = ?";
-        return jdbcTemplate.update(sql, id) > 0;
+        return jdbcTemplate.update(SQL_DELETE_RATING, id) > 0;
     }
 
     private RatingMPA mapRowToMPA(ResultSet resultSet, int rowNum) throws SQLException {

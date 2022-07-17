@@ -15,6 +15,11 @@ import java.util.Optional;
 @Repository
 public class GenreDbStorage implements GenreStorage {
 
+    public static final String SQL_ADD_GENRE = "INSERT INTO genres(name) VALUES (?)";
+    public static final String SQL_UPDATE_GENRE = "UPDATE genres SET name = ? WHERE genre_id = ?";
+    public static final String SQL_GET_GENRES = "SELECT * FROM genres ORDER BY genre_id";
+    public static final String SQL_GET_GENRE = "SELECT * FROM genres where genre_id = ?";
+    public static final String SQL_DELETE_GENRE = "DELETE FROM genres where genre_id = ?";
     private final JdbcTemplate jdbcTemplate;
 
     public GenreDbStorage(JdbcTemplate jdbcTemplate) {
@@ -23,10 +28,9 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Genre addGenre(Genre genre) {
-        String sql = "INSERT INTO genres(name) VALUES (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"genre_id"});
+            PreparedStatement stmt = connection.prepareStatement(SQL_ADD_GENRE, new String[]{"genre_id"});
             stmt.setString(1, genre.getName());
             return stmt;
         }, keyHolder);
@@ -36,28 +40,24 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Optional<Genre> updateGenre(Genre genre) {
-        String sql = "UPDATE genres SET name = ? WHERE genre_id = ?";
-        boolean isUpdated = jdbcTemplate.update(sql, genre.getName(), genre.getId()) > 0;
+        boolean isUpdated = jdbcTemplate.update(SQL_UPDATE_GENRE, genre.getName(), genre.getId()) > 0;
         return isUpdated ? Optional.of(genre) : Optional.empty();
     }
 
     @Override
     public List<Genre> getAllGenre() {
-        String sql = "SELECT * FROM genres ORDER BY genre_id";
-        return jdbcTemplate.query(sql, this::mapRowToGenre);
+        return jdbcTemplate.query(SQL_GET_GENRES, this::mapRowToGenre);
     }
 
     @Override
     public Optional<Genre> getGenre(long id) {
-        String sql = "SELECT * FROM genres where genre_id = ?";
-        List<Genre> result = jdbcTemplate.query(sql, this::mapRowToGenre, id);
+        List<Genre> result = jdbcTemplate.query(SQL_GET_GENRE, this::mapRowToGenre, id);
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     @Override
     public boolean deleteGenre(long id) {
-        String sql = "DELETE FROM genres where genre_id = ?";
-        return jdbcTemplate.update(sql, id) > 0;
+        return jdbcTemplate.update(SQL_DELETE_GENRE, id) > 0;
     }
 
     public Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {
