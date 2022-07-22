@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -64,11 +65,12 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public ResponseEntity<List<User>> getUserFriends(@PathVariable long id) {
-        return new ResponseEntity<>(userService.getUserFriends(id), HttpStatus.OK);
+        return userService.getUser(id).isEmpty() ? new ResponseEntity<>(null, HttpStatus.NOT_FOUND)
+                : new ResponseEntity<>(userService.getUserFriends(id), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public ResponseEntity<List<User>> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
-        return new ResponseEntity<>(userService.getCommonFriends(id, otherId), HttpStatus.OK);
+        return  new ResponseEntity<>(userService.getCommonFriends(id, otherId), HttpStatus.OK);
     }
 }
