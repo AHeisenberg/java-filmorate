@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.PreparedStatement;
@@ -66,4 +67,5 @@ public class GenreDbStorage implements GenreStorage {
                 .name(resultSet.getString("name"))
                 .build();
     }
+
 }

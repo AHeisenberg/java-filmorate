@@ -69,4 +69,20 @@ public class FilmService {
                 .limit(count)
                 .collect(Collectors.toList());
     }
+
+    public List<Film> getAllFilmsByDirector(long id) {
+        return filmStorage.getAllFilmsByDirector(id);
+    }
+
+    public List<Film> getAllFilmsByDirectorSortedByYear(long id) {
+        return filmStorage.getAllFilmsByDirector(id).stream()
+                .sorted(((o1, o2) -> o2.getReleaseDate().getYear() - o1.getReleaseDate().getYear()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Film> getAllFilmsByDirectorSortedByLikes(long id) {
+        return filmStorage.getAllFilmsByDirector(id).stream()
+                .sorted(((o1, o2) -> (int) (o2.getLikesCount() - o1.getLikesCount())))
+                .collect(Collectors.toList());
+    }
 }
