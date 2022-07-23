@@ -103,7 +103,8 @@ public class UserDbStorage implements UserStorage {
     }
 
     private boolean hasMutualConnection(long id, long friendId) {
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(SQL_HAS_MUTUAL_CONNECTION, id, friendId, true, friendId, id, true);
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(SQL_HAS_MUTUAL_CONNECTION, id, friendId,
+                true, friendId, id, true);
         return sqlRowSet.next();
     }
 
