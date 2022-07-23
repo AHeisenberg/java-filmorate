@@ -11,9 +11,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/films")
@@ -76,15 +74,17 @@ public class FilmController {
 
     @GetMapping("/director/{directorId}")
     public ResponseEntity<List<Film>> getDirectorsFilmSortedByYearOrLikes(@PathVariable long directorId,
-                                                                          @RequestParam Optional<String> year,
-                                                                          @RequestParam Optional<String> likes) {
-        if(directorService.getDirector(directorId).isPresent()) {
-            if(year.isPresent()) {
-                return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByYear(directorId), HttpStatus.OK);
-            } else if (likes.isPresent()) {
-                return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByLikes(directorId), HttpStatus.OK);
+                                                                          @RequestParam(defaultValue = "id")
+                                                                          String sortBy) {
+        if (directorService.getDirector(directorId).isPresent()) {
+            if (sortBy.equals("year")) {
+                return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByYear(directorId, "year"),
+                        HttpStatus.OK);
+            } else if (sortBy.equals("likes")) {
+                return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByLikes(directorId, "likes"),
+                        HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(filmService.getAllFilmsByDirector(directorId), HttpStatus.OK);
+                return new ResponseEntity<>(filmService.getAllFilmsByDirector(directorId, "id"), HttpStatus.OK);
             }
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

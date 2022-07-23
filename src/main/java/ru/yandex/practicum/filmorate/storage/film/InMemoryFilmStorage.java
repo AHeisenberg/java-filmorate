@@ -93,7 +93,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getAllFilmsByDirector(long id) {
+    public List<Film> getAllFilmsByDirector(long id, String sortBy) {
         List<Film> filmsByDirector = new ArrayList<>();
         for (Long filmId : directors.keySet()) {
             if (directors.get(filmId).getId() == id) {

@@ -32,5 +32,4 @@ public class Film {
     private long likesCount;
 
     private Set<Director> directors;
-
 }
