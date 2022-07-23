@@ -100,11 +100,11 @@ public class UserDbStorage implements UserStorage {
         List<User> users = jdbcTemplate.query(SQL_GET_USER_FRIENDS, this::mapRowToUser, id);
         users.addAll(jdbcTemplate.query(SQL_GET_USER_FRIENDS_MUTUAL, this::mapRowToUser, id, true));
         return users;
-
     }
 
     private boolean hasMutualConnection(long id, long friendId) {
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(SQL_HAS_MUTUAL_CONNECTION, id, friendId, true, friendId, id, true);
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(SQL_HAS_MUTUAL_CONNECTION, id, friendId,
+                true, friendId, id, true);
         return sqlRowSet.next();
     }
 
