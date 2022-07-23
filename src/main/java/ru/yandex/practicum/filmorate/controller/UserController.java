@@ -5,15 +5,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 @RequiredArgsConstructor
 @RestController
@@ -25,7 +21,6 @@ import java.util.Set;
 public class UserController {
 
     private final UserService userService;
-    private final RecommendationService recommendationService;
 
     @GetMapping
     public ResponseEntity<List<User>> getAll() {
@@ -75,11 +70,5 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public ResponseEntity<List<User>> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
         return new ResponseEntity<>(userService.getCommonFriends(id, otherId), HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}/recommendations")
-    public ResponseEntity<Set<Film>> findRecommendations(@PathVariable long id) {
-        return new ResponseEntity<>(recommendationService.findRecommendedFilmsForUser(id), HttpStatus.OK);
-
     }
 }
