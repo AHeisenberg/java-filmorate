@@ -2,16 +2,12 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.RatingMPA;
-import ru.yandex.practicum.filmorate.service.FilmValidator;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MPAStorage;
 
@@ -99,6 +95,7 @@ public class FilmDbStorage implements FilmStorage {
                 jdbcTemplate.update(SQL_UPDATE_GENRES_FILM, film.getId(), genre.getId());
             }
         }
+        film.setGenres(setGenresToFilm(film.getId()));
         return isUpdated ? Optional.of(getFilm(film.getId()).get()) : Optional.empty();
     }
 
@@ -107,27 +104,20 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(SQL_GET_ALL_FILMS, this::mapRowToFilm);
         for (Film film : films) {
             long id = film.getId();
-            Set<Genre> genreSet = jdbcTemplate.queryForList(SQL_GENRE_QUERY, Long.class, id)
-                    .stream()
-                    .map(genreId -> genreStorage.getGenre(genreId).get())
-                    .collect(Collectors.toSet());
-            film.setGenres(genreSet);
+            film.setGenres(setGenresToFilm(id));
+
         }
         return films;
     }
 
     @Override
     public Optional<Film> getFilm(long id) {
-
         List<Film> result = jdbcTemplate.query(SQL_GET_FILM, this::mapRowToFilm, id);
         Optional<Film> optFilm = result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
         if (optFilm.isPresent()) {
-            Set<Genre> genreSet = Optional.of(jdbcTemplate.queryForList(SQL_GENRE_QUERY, Long.class, id)
-                    .stream()
-                    .map(genreId -> genreStorage.getGenre(genreId).get())
-                    .collect(Collectors.toSet())).orElse(new HashSet<>());
-            optFilm.get().setGenres(genreSet);
+            optFilm.get().setGenres(setGenresToFilm(id));
         }
+
         return optFilm;
     }
 
@@ -163,11 +153,17 @@ public class FilmDbStorage implements FilmStorage {
                 .name(resultSet.getString("name"))
                 .description(resultSet.getString("description"))
                 .duration(resultSet.getInt("duration"))
-//                .genres(Set.of(Genre.builder().name("Unknow").build()))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .mpa(mpaStorage.getRatingMPA(resultSet.getInt("rating_id")).get())
                 .likesCount(resultSet.getLong("likes_count"))
                 .build();
+    }
+
+    private Set<Genre> setGenresToFilm(long id) {
+        return jdbcTemplate.queryForList(SQL_GENRE_QUERY, Long.class, id)
+                .stream()
+                .map(genreId -> genreStorage.getGenre(genreId).get())
+                .collect(Collectors.toSet());
     }
 
     @Override
