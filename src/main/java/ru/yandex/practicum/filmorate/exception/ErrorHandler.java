@@ -10,7 +10,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler({UserNotFoundException.class, FilmNotFoundException.class, FriendNotFoundException.class, LikeNotFoundException.class})
+    @ExceptionHandler({UserNotFoundException.class, FilmNotFoundException.class, FriendNotFoundException.class,
+            LikeNotFoundException.class, DirectorNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleUserNotFound(final Exception e) {
         return Map.of("error", e.getMessage());

@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
@@ -22,9 +23,12 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Set<Long>> likes;
 
+    private final Map<Long, Director> directors;
+
     public InMemoryFilmStorage() {
         films = new HashMap<>();
         likes = new HashMap<>();
+        directors = new HashMap<>();
     }
 
     @Override
@@ -86,5 +90,16 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         films.get(id).setLikesCount(likes.get(id).size());
         return true;
+    }
+
+    @Override
+    public List<Film> getAllFilmsByDirector(long id, String sortBy) {
+        List<Film> filmsByDirector = new ArrayList<>();
+        for (Long filmId : directors.keySet()) {
+            if (directors.get(filmId).getId() == id) {
+                filmsByDirector.add(films.get(filmId));
+            }
+        }
+        return filmsByDirector;
     }
 }

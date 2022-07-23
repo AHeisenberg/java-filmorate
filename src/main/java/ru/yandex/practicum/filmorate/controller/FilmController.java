@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
@@ -18,10 +19,12 @@ import java.util.List;
 public class FilmController {
 
     private final FilmService filmService;
+    private final DirectorService directorService;
 
     @Autowired
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService, DirectorService directorService) {
         this.filmService = filmService;
+        this.directorService = directorService;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -67,5 +70,24 @@ public class FilmController {
     @GetMapping("/popular")
     public ResponseEntity<List<Film>> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
         return new ResponseEntity<>(filmService.findPopularFilms(count), HttpStatus.OK);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<List<Film>> getDirectorsFilmSortedByYearOrLikes(@PathVariable long directorId,
+                                                                          @RequestParam(defaultValue = "id")
+                                                                          String sortBy) {
+        if (directorService.getDirector(directorId).isPresent()) {
+            if (sortBy.equals("year")) {
+                return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByYear(directorId, "year"),
+                        HttpStatus.OK);
+            } else if (sortBy.equals("likes")) {
+                return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByLikes(directorId, "likes"),
+                        HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(filmService.getAllFilmsByDirector(directorId, "id"), HttpStatus.OK);
+            }
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
 }
