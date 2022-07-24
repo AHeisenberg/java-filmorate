@@ -32,6 +32,7 @@ public class FilmController {
         return new ResponseEntity<>(filmService.addFilm(film), HttpStatus.CREATED);
     }
 
+
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Film> updateFilm(@RequestBody Film film) {
         return filmService.updateFilm(film).map(value -> new ResponseEntity<>(value, HttpStatus.OK))
@@ -43,6 +44,7 @@ public class FilmController {
         return filmService.getFilm(id).map(film -> new ResponseEntity<>(film, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
     }
+
 
     @GetMapping
     public ResponseEntity<List<Film>> getAll() {

@@ -16,10 +16,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -33,6 +30,7 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SQL_GENRES_QUERY = "DELETE FROM films_genres WHERE film_id = ?";
     private static final String SQL_GET_ALL_FILMS = "SELECT * FROM films";
     private static final String SQL_GENRE_QUERY = "SELECT genre_id FROM films_genres WHERE film_id = ?";
+    private static final String SQL_UPDATE_GENRES_FILM = "INSERT INTO films_genres(film_id, genre_id) values (?, ?)";
     private static final String SQL_GET_FILM = "SELECT * FROM films WHERE film_id = ?";
     private static final String SQL_DELETE_FILM = "DELETE FROM films WHERE film_id = ?";
     private static final String SQL_REMOVE_LIKE = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
@@ -42,7 +40,7 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SQL_ADD_LIKE = "INSERT INTO likes(film_id, user_id) " +
             "values (?, ?)";
     private static final String SQL_LIKES_ADD_QUERY = "UPDATE films SET likes_count = ? WHERE film_id = ?";
-    private static final String SQL_UPDATE_GENRES_FILM = "INSERT INTO films_genres(film_id, genre_id) values (?, ?)";
+    private static final String GET_USER_LIKES = "SELECT user_id, film_id FROM likes";
     private static final String SQL_UPDATE_DIRECTORS_FILM = "INSERT INTO film_directors(film_id, director_id) " +
             "VALUES (?, ?)";
     private static final String SQL_GET_DIRECTOR_BY_ID = "SELECT * FROM directors JOIN film_directors " +
@@ -54,6 +52,7 @@ public class FilmDbStorage implements FilmStorage {
             "JOIN film_directors AS fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY f.release_date";
     private static final String SQL_DIRECTORS_FILM_BY_LIKES = "SELECT f.*, fd.director_id FROM films AS f " +
             "JOIN film_directors AS fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY f.likes_count";
+
     private final JdbcTemplate jdbcTemplate;
     private final GenreStorage genreStorage;
     private final MPAStorage mpaStorage;
@@ -66,6 +65,7 @@ public class FilmDbStorage implements FilmStorage {
         this.genreStorage = genreStorage;
         this.mpaStorage = mpaStorage;
     }
+
 
     @Override
     public Film addFilm(Film film) {
@@ -123,6 +123,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         film.setGenres(setGenresToFilm(film.getId()));
         return isUpdated ? Optional.of(film) : Optional.empty();
+
     }
 
     @Override
@@ -189,6 +190,7 @@ public class FilmDbStorage implements FilmStorage {
         return isAdded;
     }
 
+
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
 
         return Film.builder()
@@ -202,22 +204,43 @@ public class FilmDbStorage implements FilmStorage {
                 .build();
     }
 
+
     private Set<Director> setDirectorsToFilm(long id) {
         return new HashSet<>(jdbcTemplate.query(SQL_GET_DIRECTOR_BY_ID, this::mapRowToDirector, id));
     }
+
+
 
     private Set<Genre> setGenresToFilm(long id) {
         return jdbcTemplate.queryForList(SQL_GENRE_QUERY, Long.class, id)
                 .stream()
                 .map(genreId -> genreStorage.getGenre(genreId).get())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet()); 
     }
 
-    private Director mapRowToDirector(ResultSet resultSet, int rowNum) throws SQLException {
+
+    @Override
+    public Map<Long, Set<Long>> getUserLikes() {
+
+        Map<Long, Set<Long>> likes = new HashMap<>();
+        jdbcTemplate.query(GET_USER_LIKES, (rs) -> {
+            long userId = rs.getInt("user_id");
+            long filmId = rs.getInt("film_id");
+            likes.merge(userId, new HashSet<>(Set.of(filmId)), (oldValue, newValue) -> {
+                oldValue.add(filmId);
+                return oldValue;
+            });
+        });
+        return likes;
+    }
+
+
+private Director mapRowToDirector(ResultSet resultSet,int rowNum)throws SQLException{
 
         return Director.builder()
-                .id(resultSet.getInt("director_id"))
-                .name(resultSet.getString("director_name"))
-                .build();
-    }
-}
+        .id(resultSet.getInt("director_id"))
+        .name(resultSet.getString("director_name"))
+        .build();
+        }
+        }
+

@@ -93,6 +93,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public Map<Long, Set<Long>> getUserLikes() {
+        return null;
+    }
     public List<Film> getAllFilmsByDirector(long id, String sortBy) {
         List<Film> filmsByDirector = new ArrayList<>();
         for (Long filmId : directors.keySet()) {
@@ -101,5 +104,6 @@ public class InMemoryFilmStorage implements FilmStorage {
             }
         }
         return filmsByDirector;
+
     }
 }
