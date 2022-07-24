@@ -215,7 +215,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.queryForList(SQL_GENRE_QUERY, Long.class, id)
                 .stream()
                 .map(genreId -> genreStorage.getGenre(genreId).get())
-                .collect(Collectors.toSet()); 
+                .collect(Collectors.toSet());
     }
 
 
