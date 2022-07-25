@@ -53,6 +53,15 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SQL_DIRECTORS_FILM_BY_LIKES = "SELECT f.*, fd.director_id FROM films AS f " +
             "JOIN film_directors AS fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY f.likes_count";
 
+    private static final String SQL_GET_FILMS_BY_SUBSTRING_NAME = "SELECT * FROM films WHERE LOWER(name) LIKE ?";
+    private static final String SQL_GET_FILMS_BY_SUBSTRING_DIRECTOR = "SELECT f.* FROM films AS f JOIN " +
+            "film_directors AS fd ON f.film_id = fd.film_id JOIN directors AS d ON fd.director_id = d.director_id " +
+            "WHERE LOWER(d.director_name) LIKE ?";
+    private static final String SQL_GET_FILMS_BY_SUBSTRING_NAME_DIR = "SELECT f.* FROM films AS f JOIN " +
+            "film_directors AS fd ON f.film_id = fd.film_id JOIN directors AS d ON d.director_id = fd.director_id " +
+            "WHERE LOWER(d.director_name) LIKE ? OR LOWER(f.name) LIKE ?";
+
+
     private final JdbcTemplate jdbcTemplate;
     private final GenreStorage genreStorage;
     private final MPAStorage mpaStorage;
@@ -242,5 +251,27 @@ private Director mapRowToDirector(ResultSet resultSet,int rowNum)throws SQLExcep
         .name(resultSet.getString("director_name"))
         .build();
         }
+
+    @Override
+    public List<Film> getFilmsBySubstring(String query, String by) {
+        List<Film> films = new ArrayList<>();
+        String stringSearch = "%" + query.toLowerCase() + "%";
+        if (by.contains("title")) {
+            films.addAll(jdbcTemplate.query(SQL_GET_FILMS_BY_SUBSTRING_NAME, this::mapRowToFilm, stringSearch));
         }
+        if (by.contains("director")) {
+            films.addAll(0, jdbcTemplate.query(SQL_GET_FILMS_BY_SUBSTRING_DIRECTOR, this::mapRowToFilm,
+                            stringSearch));
+        }
+
+        for (Film film : films) {
+            long id = film.getId();
+            film.setGenres(setGenresToFilm(id));
+            film.setDirectors(setDirectorsToFilm(id));
+        }
+        return films;
+    }
+}
+
+
 

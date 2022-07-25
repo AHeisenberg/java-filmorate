@@ -81,4 +81,8 @@ public class FilmService {
     public List<Film> getAllFilmsByDirectorSortedByLikes(long id, String sortBy) {
         return filmStorage.getAllFilmsByDirector(id, sortBy);
     }
+
+    public List<Film> getFilmsBySubstring(String query, String by) {
+        return filmStorage.getFilmsBySubstring(query, by);
+    }
 }
