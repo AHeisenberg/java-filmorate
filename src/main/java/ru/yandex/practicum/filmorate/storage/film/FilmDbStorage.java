@@ -52,6 +52,7 @@ public class FilmDbStorage implements FilmStorage {
             "JOIN film_directors AS fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY f.release_date";
     private static final String SQL_DIRECTORS_FILM_BY_LIKES = "SELECT f.*, fd.director_id FROM films AS f " +
             "JOIN film_directors AS fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY f.likes_count";
+
     private static final String SQL_GET_TOP_LIKEBLE_FILMS = "SELECT * FROM films ORDER BY likes_count DESC LIMIT ?";
     private static final String FIND_TOP_FILMS_BY_GENRE = "SELECT * FROM films WHERE film_id IN " +
             "(SELECT film_id FROM films_genres WHERE genre_id = ?) ORDER BY likes_count DESC LIMIT ?";
@@ -72,7 +73,6 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SQL_GET_FILMS_BY_SUBSTRING_NAME_DIR = "SELECT f.* FROM films AS f JOIN " +
             "film_directors AS fd ON f.film_id = fd.film_id JOIN directors AS d ON d.director_id = fd.director_id " +
             "WHERE LOWER(d.director_name) LIKE ? OR LOWER(f.name) LIKE ?";
-
 
     private final JdbcTemplate jdbcTemplate;
     private final GenreStorage genreStorage;
@@ -230,13 +230,14 @@ public class FilmDbStorage implements FilmStorage {
         return new HashSet<>(jdbcTemplate.query(SQL_GET_DIRECTOR_BY_ID, this::mapRowToDirector, id));
     }
 
-
     private Set<Genre> setGenresToFilm(long id) {
         return jdbcTemplate.queryForList(SQL_GENRE_QUERY, Long.class, id)
                 .stream()
                 .map(genreId -> genreStorage.getGenre(genreId).get())
+
                 .collect(Collectors.toSet());
     }
+
 
     @Override
     public Map<Long, Set<Long>> getUserLikes() {
@@ -261,6 +262,7 @@ public class FilmDbStorage implements FilmStorage {
                 .name(resultSet.getString("director_name"))
                 .build();
     }
+
 
     @Override
     public List<Film> getTopLikableFilms(long count) {
@@ -318,7 +320,5 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 }
-
-
 
 

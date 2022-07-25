@@ -74,7 +74,7 @@ public class FilmController {
     @GetMapping("/director/{directorId}")
     public ResponseEntity<List<Film>> getDirectorsFilmSortedByYearOrLikes(@PathVariable long directorId,
                                                                           @RequestParam(defaultValue = "id")
-                                                                          String sortBy) {
+                                                                                  String sortBy) {
         if (directorService.getDirector(directorId).isPresent()) {
             if (sortBy.equals("year")) {
                 return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByYear(directorId, "year"),
