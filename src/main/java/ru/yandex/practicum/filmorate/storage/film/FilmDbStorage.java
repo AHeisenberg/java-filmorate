@@ -69,10 +69,6 @@ public class FilmDbStorage implements FilmStorage {
             "film_directors AS fd ON f.film_id = fd.film_id JOIN directors AS d ON fd.director_id = d.director_id " +
             "WHERE LOWER(d.director_name) LIKE ?";
 
-    private static final String SQL_GET_FILMS_BY_SUBSTRING_NAME = "SELECT * FROM films WHERE LOWER(name) LIKE ?";
-    private static final String SQL_GET_FILMS_BY_SUBSTRING_DIRECTOR = "SELECT f.* FROM films AS f JOIN " +
-            "film_directors AS fd ON f.film_id = fd.film_id JOIN directors AS d ON fd.director_id = d.director_id " +
-            "WHERE LOWER(d.director_name) LIKE ?";
     private static final String SQL_GET_FILMS_BY_SUBSTRING_NAME_DIR = "SELECT f.* FROM films AS f JOIN " +
             "film_directors AS fd ON f.film_id = fd.film_id JOIN directors AS d ON d.director_id = fd.director_id " +
             "WHERE LOWER(d.director_name) LIKE ? OR LOWER(f.name) LIKE ?";
