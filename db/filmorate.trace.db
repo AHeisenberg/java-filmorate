@@ -743,3 +743,7 @@ Database is already closed (to disable automatic closing at VM shutdown, add ";D
 	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
 	at java.base/java.lang.Thread.run(Thread.java:829)
+2022-07-25 17:43:49 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Таблица "USERS_LIKES_REVIEWS" уже существует
+Table "USERS_LIKES_REVIEWS" already exists; SQL statement:
+CREATE TABLE users_likes_reviews ( review_id BIGINT REFERENCES reviews (review_id), user_id BIGINT REFERENCES users (user_id), is_like BOOLEAN ) [42101-212]
