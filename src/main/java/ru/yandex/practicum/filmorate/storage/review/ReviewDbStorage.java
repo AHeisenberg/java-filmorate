@@ -2,9 +2,12 @@ package ru.yandex.practicum.filmorate.storage.review;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Review;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -51,17 +54,26 @@ public class ReviewDbStorage implements ReviewStorage {
 
 
     @Override
-    public Review addReview(Review review) {
-        jdbcTemplate.update(SQL_ADD_REVIEW, review.getContent(), review.isPositive(),
-                review.getUserId(), review.getFilmId());
-        return review;
+    public Optional<Review> addReview(Review review) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement stmt = connection.prepareStatement(SQL_ADD_REVIEW, new String[]{"review_id"});
+            stmt.setString(1, review.getContent());
+            stmt.setBoolean(2, review.isPositive());
+            stmt.setLong(3, review.getUserId());
+            stmt.setLong(4, review.getFilmId());
+            return stmt;
+        }, keyHolder);
+        long reviewId = keyHolder.getKey().longValue();
+
+        return getReview(reviewId);
     }
 
     @Override
-    public Review editReview(Review review) {
+    public Optional<Review> editReview(Review review) {
         jdbcTemplate.update(SQL_EDIT_REVIEW, review.getContent(), review.isPositive(),
                 review.getUserId(), review.getFilmId(), review.getReviewId());
-        return review;
+        return getReview(review.getReviewId());
     }
 
     @Override

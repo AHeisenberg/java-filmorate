@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ public class Review {
     private long reviewId;
     @NotNull
     private String content;
-    @NotNull
+    @JsonProperty("isPositive")
     private boolean isPositive;
     @NotNull
     private long userId;
@@ -20,4 +21,5 @@ public class Review {
     private long filmId;
     @NotNull
     private long useful;
+
 }

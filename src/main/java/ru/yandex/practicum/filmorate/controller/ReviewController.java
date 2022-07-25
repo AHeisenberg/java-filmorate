@@ -19,15 +19,13 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping()
-    public ResponseEntity<Review> addReview(@RequestBody Review review) {
-        Review review1 = reviewService.addReview(review);
-        return new ResponseEntity<>(review1, HttpStatus.OK);
+    public ResponseEntity<Optional<Review>> addReview(@RequestBody Review review) {
+        return new ResponseEntity<>(reviewService.addReview(review), HttpStatus.OK);
     }
 
     @PutMapping()
-    public ResponseEntity<Review> editReview(@RequestBody Review review) {
-        Review review1 = reviewService.editReview(review);
-        return new ResponseEntity<>(review1, HttpStatus.OK);
+    public ResponseEntity<Optional<Review>> editReview(@RequestBody Review review) {
+        return new ResponseEntity<>(reviewService.editReview(review), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

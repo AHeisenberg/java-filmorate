@@ -26,7 +26,7 @@ public class ReviewService {
         this.filmService = filmService;
     }
 
-    public Review addReview(Review review) {
+    public Optional<Review> addReview(Review review) {
        Optional<Film> filmOpt = filmService.getFilm(review.getFilmId());
        Optional<User> userOpt = userService.getUser(review.getUserId());
 
@@ -41,7 +41,7 @@ public class ReviewService {
 
     }
 
-    public Review editReview(Review review) {
+    public Optional<Review> editReview(Review review) {
         Optional<Review> reviewOpt = reviewStorage.getReview(review.getReviewId());
 
         if(reviewOpt.isPresent()) {
