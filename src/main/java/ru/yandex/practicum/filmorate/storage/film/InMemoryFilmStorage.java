@@ -104,7 +104,26 @@ public class InMemoryFilmStorage implements FilmStorage {
             }
         }
         return filmsByDirector;
+    }
 
+    @Override
+    public List<Film> getTopLikableFilms(long count) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByYear(long count, int year) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByGenre(long count, int genreId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByGenreAndYear(long count, int genreId, int year) {
+        return null;
     }
 
     @Override

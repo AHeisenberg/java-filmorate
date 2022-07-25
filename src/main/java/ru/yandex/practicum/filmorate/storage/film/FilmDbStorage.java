@@ -52,6 +52,14 @@ public class FilmDbStorage implements FilmStorage {
             "JOIN film_directors AS fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY f.release_date";
     private static final String SQL_DIRECTORS_FILM_BY_LIKES = "SELECT f.*, fd.director_id FROM films AS f " +
             "JOIN film_directors AS fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY f.likes_count";
+    private static final String SQL_GET_TOP_LIKEBLE_FILMS = "SELECT * FROM films ORDER BY likes_count DESC LIMIT ?";
+    private static final String FIND_TOP_FILMS_BY_GENRE = "SELECT * FROM films WHERE film_id IN " +
+            "(SELECT film_id FROM films_genres WHERE genre_id = ?) ORDER BY likes_count DESC LIMIT ?";
+    private static final String FIND_TOP_FILMS_BY_YEAR = "SELECT * FROM films WHERE " +
+            "EXTRACT(YEAR FROM release_date) = ? ORDER BY likes_count DESC LIMIT ?";
+    private static final String FIND_TOP_FILMS_BY_YEAR_AND_GENRE = "SELECT * FROM films WHERE film_id IN " +
+            "(SELECT film_id FROM films_genres WHERE genre_id = ?) AND EXTRACT(YEAR FROM release_date) = ? " +
+            "ORDER BY likes_count DESC LIMIT ?";
 
     private static final String SQL_GET_FILMS_BY_SUBSTRING_NAME = "SELECT * FROM films WHERE LOWER(name) LIKE ?";
     private static final String SQL_GET_FILMS_BY_SUBSTRING_DIRECTOR = "SELECT f.* FROM films AS f JOIN " +
@@ -219,14 +227,12 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 
-
     private Set<Genre> setGenresToFilm(long id) {
         return jdbcTemplate.queryForList(SQL_GENRE_QUERY, Long.class, id)
                 .stream()
                 .map(genreId -> genreStorage.getGenre(genreId).get())
-                .collect(Collectors.toSet()); 
+                .collect(Collectors.toSet());
     }
-
 
     @Override
     public Map<Long, Set<Long>> getUserLikes() {
@@ -244,13 +250,42 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 
-private Director mapRowToDirector(ResultSet resultSet,int rowNum)throws SQLException{
+    private Director mapRowToDirector(ResultSet resultSet, int rowNum) throws SQLException {
 
         return Director.builder()
-        .id(resultSet.getInt("director_id"))
-        .name(resultSet.getString("director_name"))
-        .build();
-        }
+                .id(resultSet.getInt("director_id"))
+                .name(resultSet.getString("director_name"))
+                .build();
+    }
+
+    @Override
+    public List<Film> getTopLikableFilms(long count) {
+        List<Film> films = jdbcTemplate.query(SQL_GET_TOP_LIKEBLE_FILMS, this::mapRowToFilm, count);
+        films.forEach(f -> f.setGenres(setGenresToFilm(f.getId())));
+        return films;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByYear(long count, int year) {
+        List<Film> films = jdbcTemplate.query(FIND_TOP_FILMS_BY_YEAR, this::mapRowToFilm, year, count);
+        films.forEach(f -> f.setGenres(setGenresToFilm(f.getId())));
+        return films;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByGenre(long count, int genreId) {
+        List<Film> films = jdbcTemplate.query(FIND_TOP_FILMS_BY_GENRE, this::mapRowToFilm, genreId, count);
+        films.forEach(f -> f.setGenres(setGenresToFilm(f.getId())));
+        return films;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByGenreAndYear(long count, int genreId, int year) {
+        List<Film> films = jdbcTemplate.query(FIND_TOP_FILMS_BY_YEAR_AND_GENRE,
+                this::mapRowToFilm, genreId, year, count);
+        films.forEach(f -> f.setGenres(setGenresToFilm(f.getId())));
+        return films;
+    }
 
     @Override
     public List<Film> getFilmsBySubstring(String query, String by) {
@@ -261,9 +296,8 @@ private Director mapRowToDirector(ResultSet resultSet,int rowNum)throws SQLExcep
         }
         if (by.contains("director")) {
             films.addAll(0, jdbcTemplate.query(SQL_GET_FILMS_BY_SUBSTRING_DIRECTOR, this::mapRowToFilm,
-                            stringSearch));
+                    stringSearch));
         }
-
         for (Film film : films) {
             long id = film.getId();
             film.setGenres(setGenresToFilm(id));
@@ -272,6 +306,7 @@ private Director mapRowToDirector(ResultSet resultSet,int rowNum)throws SQLExcep
         return films;
     }
 }
+
 
 
 

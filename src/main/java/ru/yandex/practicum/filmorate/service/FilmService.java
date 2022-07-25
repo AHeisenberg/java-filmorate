@@ -6,21 +6,26 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.filmorate.service.FilmValidator.DATE_OF_FILM_RELEASE;
 
 @Service
 public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserService userService;
+    private final GenreStorage genreStorage;
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService) { // inMemoryFilmStorage
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService, @Qualifier("genreDbStorage") GenreStorage genreStorage) { // inMemoryFilmStorage
         this.filmStorage = filmStorage;
         this.userService = userService;
+        this.genreStorage = genreStorage;
     }
 
     public Film addFilm(Film film) {
@@ -82,7 +87,29 @@ public class FilmService {
         return filmStorage.getAllFilmsByDirector(id, sortBy);
     }
 
+
     public List<Film> getFilmsBySubstring(String query, String by) {
         return filmStorage.getFilmsBySubstring(query, by);
+    }
+    public List<Film> getTopLikableFilms(long count) {
+        return filmStorage.getTopLikableFilms(count);
+    }
+
+    public Optional<List<Film>> getTopFilmsByYear(long count, int year) {
+        return year > DATE_OF_FILM_RELEASE.getYear()
+                ? Optional.of(filmStorage.getTopFilmsByYear(count, year))
+                : Optional.empty();
+    }
+
+    public Optional<List<Film>> getTopFilmsByGenre(long count, int genreId) {
+        return genreStorage.getGenre(genreId).isPresent()
+                ? Optional.of(filmStorage.getTopFilmsByGenre(count, genreId))
+                : Optional.empty();
+    }
+
+    public Optional<List<Film>> getTopFilmsByGenreAndYear(long count, int genreId, int year) {
+        return genreStorage.getGenre(genreId).isPresent() && year > DATE_OF_FILM_RELEASE.getYear()
+                ? Optional.of(filmStorage.getTopFilmsByGenreAndYear(count, genreId, year))
+                : Optional.empty();
     }
 }

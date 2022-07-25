@@ -27,4 +27,12 @@ public interface FilmStorage {
     Map<Long, Set<Long>> getUserLikes();
     List<Film> getFilmsBySubstring(String query, String by);
 
+    List<Film> getTopLikableFilms(long count);
+
+    List<Film> getTopFilmsByYear(long count, int year);
+
+    List<Film> getTopFilmsByGenre(long count, int genreId);
+
+    List<Film> getTopFilmsByGenreAndYear(long count, int genreId, int year);
+
 }
