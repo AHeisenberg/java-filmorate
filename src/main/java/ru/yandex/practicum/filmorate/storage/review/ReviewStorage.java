@@ -23,5 +23,5 @@ public interface ReviewStorage {
 
     Optional<Review> deleteDislike(long reviewId, long userId);
 
-    List<Review> getReviewsOfFilm(Optional<Long> filmId, long count);
+    List<Review> getReviewsOfFilm(Long filmId, Long count);
 }

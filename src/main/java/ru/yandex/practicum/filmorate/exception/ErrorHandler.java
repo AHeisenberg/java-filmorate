@@ -11,7 +11,7 @@ import java.util.Map;
 public class ErrorHandler {
 
     @ExceptionHandler({UserNotFoundException.class, FilmNotFoundException.class, FriendNotFoundException.class,
-            LikeNotFoundException.class, DirectorNotFoundException.class})
+            LikeNotFoundException.class, DirectorNotFoundException.class, ReviewNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleUserNotFound(final Exception e) {
         return Map.of("error", e.getMessage());

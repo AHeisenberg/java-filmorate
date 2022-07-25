@@ -3,8 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ReviewNotFound;
+import ru.yandex.practicum.filmorate.exception.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
@@ -30,6 +31,14 @@ public class ReviewService {
        Optional<Film> filmOpt = filmService.getFilm(review.getFilmId());
        Optional<User> userOpt = userService.getUser(review.getUserId());
 
+       if(review.getFilmId() == null || review.getUserId() == null) {
+           throw new ValidationException("film ID or user ID is empty");
+       }
+
+        if(review.getIsPositive() == null) {
+            throw new ValidationException("variable isPositive is empty");
+        }
+
        if(filmOpt.isPresent() && userOpt.isPresent()) {
            return reviewStorage.addReview(review);
        } else if(!filmOpt.isPresent()){
@@ -47,23 +56,26 @@ public class ReviewService {
         if(reviewOpt.isPresent()) {
             return reviewStorage.editReview(review);
         } else {
-            throw new ReviewNotFound();
+            throw new ReviewNotFoundException();
         }
     }
 
     public Optional<Review> getReview(long id) {
-
-        Optional<Review> reviewOpt = reviewStorage.getReview(id);
-        if(reviewOpt.isPresent()) {
+        try {
+            Optional<Review> reviewOpt = reviewStorage.getReview(id);
             return reviewStorage.getReview(id);
-        } else {
-            throw new ReviewNotFound();
+        } catch (Exception e) {
+            throw new ReviewNotFoundException();
         }
     }
 
     public void deleteReview(long id) {
-            reviewStorage.getReview(id);
+        Optional<Review> reviewOpt = reviewStorage.getReview(id);
+        if(reviewOpt.isPresent()) {
             reviewStorage.deleteReview(id);
+        } else {
+            throw new ReviewNotFoundException();
+        }
     }
 
     public Optional<Review> putLike(long reviewId, long userId) {
@@ -108,8 +120,9 @@ public class ReviewService {
         }
     }
 
-    public List<Review> getReviewsOfFilm(Optional<Long> filmId, Optional<Long> countOpt) {
-       long count = countOpt.orElse(10L);
+    public List<Review> getReviewsOfFilm(Optional<Long> filmIdOpt, Optional<Long> countOpt) {
+       Long count = countOpt.orElse(10L);
+       Long filmId = filmIdOpt.orElse(null);
        return reviewStorage.getReviewsOfFilm(filmId, count);
     }
 

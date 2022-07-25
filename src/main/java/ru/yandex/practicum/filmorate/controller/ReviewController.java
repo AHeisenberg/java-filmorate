@@ -30,8 +30,7 @@ public class ReviewController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Optional<Review>> getReview(@PathVariable long id) {
-        Optional<Review> review = reviewService.getReview(id);
-        return new ResponseEntity<>(review, HttpStatus.OK);
+        return new ResponseEntity<>(reviewService.getReview(id), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -61,8 +60,8 @@ public class ReviewController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Review>> getReviewsOfFilm (@RequestParam(required = false) Optional<Long> filmId,
-                                                          @RequestParam(required = false) Optional<Long> countOpt) {
+    public ResponseEntity<List<Review>> getReviewsOfFilm (@RequestParam(value = "filmId", required = false) Optional<Long> filmId,
+                                                          @RequestParam(value = "count", required = false) Optional<Long> countOpt) {
 
         return new ResponseEntity<>(reviewService.getReviewsOfFilm(filmId, countOpt), HttpStatus.OK);
     }

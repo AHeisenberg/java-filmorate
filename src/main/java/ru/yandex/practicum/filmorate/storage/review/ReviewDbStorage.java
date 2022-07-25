@@ -26,8 +26,8 @@ public class ReviewDbStorage implements ReviewStorage {
     private static final String SQL_ADD_REVIEW = "INSERT INTO reviews (content, is_positive, to_user_id, to_film_id) " +
             "VALUES (?, ?, ?, ?)";
 
-    private static final String SQL_EDIT_REVIEW = "UPDATE reviews SET content=?, is_positive=?, to_user_id=?, " +
-            "to_film_id=? WHERE review_id=?";
+    private static final String SQL_EDIT_REVIEW = "UPDATE reviews SET content=?, is_positive=? " +
+            "WHERE review_id=?";
 
     private static final String SQL_COUNT_LIKES_REVIEW = "SELECT COUNT(user_id) FROM users_likes_reviews WHERE review_id=? AND is_like=true";
 
@@ -59,7 +59,7 @@ public class ReviewDbStorage implements ReviewStorage {
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(SQL_ADD_REVIEW, new String[]{"review_id"});
             stmt.setString(1, review.getContent());
-            stmt.setBoolean(2, review.isPositive());
+            stmt.setBoolean(2, review.getIsPositive());
             stmt.setLong(3, review.getUserId());
             stmt.setLong(4, review.getFilmId());
             return stmt;
@@ -71,8 +71,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Optional<Review> editReview(Review review) {
-        jdbcTemplate.update(SQL_EDIT_REVIEW, review.getContent(), review.isPositive(),
-                review.getUserId(), review.getFilmId(), review.getReviewId());
+        jdbcTemplate.update(SQL_EDIT_REVIEW, review.getContent(), review.getIsPositive(), review.getReviewId());
         return getReview(review.getReviewId());
     }
 
@@ -118,10 +117,10 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public List<Review> getReviewsOfFilm(Optional<Long> filmId, long count) {
+    public List<Review> getReviewsOfFilm(Long filmId, Long count) {
         List<Review> listOfReviews;
 
-        if (filmId.isPresent()) {
+        if (filmId != null) {
             List<Map<String, Object>> listOfMaps = jdbcTemplate.queryForList(SQL_GET_REVIEWS_OF_FILM, filmId);
             listOfReviews = mapToListOfReviews(listOfMaps);
         } else {
@@ -130,7 +129,7 @@ public class ReviewDbStorage implements ReviewStorage {
         }
         listOfReviews = listOfReviews
                 .stream()
-                .sorted(Comparator.comparing(Review::getUseful))
+                .sorted(Comparator.comparing(Review::getUseful).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
 
@@ -170,8 +169,5 @@ public class ReviewDbStorage implements ReviewStorage {
                 .userId(resultSet.getLong("to_user_id"))
                 .useful(resultSet.getLong("useful"))
                 .build();
-
     }
-
-
 }
