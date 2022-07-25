@@ -34,4 +34,6 @@ public interface FilmStorage {
 
     List<Film> getTopFilmsByGenreAndYear(long count, int genreId, int year);
 
+    List<Film> getTopFilmsByUser(long userId);
+
 }

@@ -60,6 +60,9 @@ public class FilmDbStorage implements FilmStorage {
     private static final String FIND_TOP_FILMS_BY_YEAR_AND_GENRE = "SELECT * FROM films WHERE film_id IN " +
             "(SELECT film_id FROM films_genres WHERE genre_id = ?) AND EXTRACT(YEAR FROM release_date) = ? " +
             "ORDER BY likes_count DESC LIMIT ?";
+    private static final String GET_FILM_BY_USER = "SELECT * FROM films WHERE film_id IN " +
+            "(SELECT film_id FROM likes WHERE user_id = ?) ORDER BY likes_count DESC";
+
 
     private final JdbcTemplate jdbcTemplate;
     private final GenreStorage genreStorage;
@@ -277,5 +280,13 @@ public class FilmDbStorage implements FilmStorage {
         films.forEach(f -> f.setGenres(setGenresToFilm(f.getId())));
         return films;
     }
+
+    @Override
+    public List<Film> getTopFilmsByUser(long userId) {
+        List<Film> films = jdbcTemplate.query(GET_FILM_BY_USER, this::mapRowToFilm, userId);
+        films.forEach(f -> f.setGenres(setGenresToFilm(f.getId())));
+        return films;
+    }
+
 }
 

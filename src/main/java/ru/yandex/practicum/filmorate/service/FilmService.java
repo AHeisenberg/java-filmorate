@@ -108,4 +108,12 @@ public class FilmService {
                 ? Optional.of(filmStorage.getTopFilmsByGenreAndYear(count, genreId, year))
                 : Optional.empty();
     }
+
+    public Optional<List<Film>> getTopCommonFilms(long userId, long friendId) {
+        return userService.getUser(userId).isPresent() && userService.getUser(friendId).isPresent()
+                ? Optional.of(filmStorage.getTopFilmsByUser(userId).stream().filter(filmStorage.getTopFilmsByUser(friendId)::contains).collect(Collectors.toList()))
+                : Optional.empty();
+
+    }
+
 }

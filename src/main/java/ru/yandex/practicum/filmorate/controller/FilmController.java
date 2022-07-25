@@ -90,7 +90,7 @@ public class FilmController {
         }
     }
 
-    @GetMapping(value = "/popular")
+    @GetMapping("/popular")
     public ResponseEntity<List<Film>> getPopularFilms(@RequestParam(defaultValue = "10") long count,
                                                       @RequestParam Optional<Integer> genreId,
                                                       @RequestParam Optional<Integer> year) {
@@ -98,16 +98,18 @@ public class FilmController {
             return filmService.getTopFilmsByGenreAndYear(count, genreId.get(), year.get())
                     .map(films -> new ResponseEntity<>(films, HttpStatus.OK))
                     .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
-        } else if (genreId.isPresent()) {
-            return filmService.getTopFilmsByGenre(count, genreId.get())
-                    .map(films -> new ResponseEntity<>(films, HttpStatus.OK))
-                    .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
-        } else if (year.isPresent()) {
-            return filmService.getTopFilmsByYear(count, year.get())
-                    .map(films -> new ResponseEntity<>(films, HttpStatus.OK))
-                    .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
-        } else {
-            return new ResponseEntity<>(filmService.getTopLikableFilms(count), HttpStatus.OK);
-        }
+        } else return genreId.map(integer -> filmService.getTopFilmsByGenre(count, integer)
+                .map(films -> new ResponseEntity<>(films, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND))).orElseGet(() -> year.map(integer -> filmService.getTopFilmsByYear(count, integer)
+                .map(films -> new ResponseEntity<>(films, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND))).orElseGet(() -> new ResponseEntity<>(filmService.getTopLikableFilms(count), HttpStatus.OK)));
     }
+
+    @GetMapping("/common")
+    public ResponseEntity<List<Film>> getTopCommonFilms(@RequestParam long userId, @RequestParam long friendId) {
+        return filmService.getTopCommonFilms(userId, friendId).map(film -> new ResponseEntity<>(film, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+    }
+
+
 }
