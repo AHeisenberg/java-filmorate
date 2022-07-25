@@ -53,27 +53,27 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review addReview(Review review) {
         jdbcTemplate.update(SQL_ADD_REVIEW, review.getContent(), review.isPositive(),
-                review.getUserId(), review.getFilmId()); //TODO лайки через JSON
+                review.getUserId(), review.getFilmId());
         return review;
     }
 
     @Override
     public Review editReview(Review review) {
         jdbcTemplate.update(SQL_EDIT_REVIEW, review.getContent(), review.isPositive(),
-                review.getUserId(), review.getFilmId(), review.getId()); //TODO лайки
+                review.getUserId(), review.getFilmId(), review.getReviewId());
         return review;
     }
 
     @Override
     public Optional<Review> getReview(long id) {
-        List<Review> result = jdbcTemplate.query(SQL_GET_REVIEW, this::mapRowToReview, id); //TODO лайки
+        List<Review> result = jdbcTemplate.query(SQL_GET_REVIEW, this::mapRowToReview, id);
         return Optional.of(result.get(0));
     }
 
     @Override
     public void deleteReview(long id) {
         jdbcTemplate.update(SQL_DELETE_ALL_LIKES_DISLIKES, id);
-        jdbcTemplate.update(SQL_DELETE_REVIEW, id); //TODO и снести таблицу с лайками
+        jdbcTemplate.update(SQL_DELETE_REVIEW, id);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class ReviewDbStorage implements ReviewStorage {
         for (Map<String, Object> map : listOfMaps) {
 
             listOfReviews.add(Review.builder()
-                    .id((Long) map.get("review_id"))
+                    .reviewId((Long) map.get("review_id"))
                     .content((String) map.get("content"))
                     .isPositive((Boolean) map.get("is_positive"))
                     .filmId((Long) map.get("to_film_id"))
@@ -151,12 +151,12 @@ public class ReviewDbStorage implements ReviewStorage {
     private Review mapRowToReview(ResultSet resultSet, int rowNum) throws SQLException {
 
         return Review.builder()
-                .id(resultSet.getLong("review_id"))
+                .reviewId(resultSet.getLong("review_id"))
                 .content(resultSet.getString("content"))
                 .isPositive(resultSet.getBoolean("is_positive"))
                 .filmId(resultSet.getLong("to_film_id"))
                 .userId(resultSet.getLong("to_user_id"))
-                .useful(resultSet.getLong("useful"))  //TODO счетчик лайков доделать
+                .useful(resultSet.getLong("useful"))
                 .build();
 
     }

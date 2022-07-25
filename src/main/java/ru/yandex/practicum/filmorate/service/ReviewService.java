@@ -42,7 +42,7 @@ public class ReviewService {
     }
 
     public Review editReview(Review review) {
-        Optional<Review> reviewOpt = reviewStorage.getReview(review.getId());
+        Optional<Review> reviewOpt = reviewStorage.getReview(review.getReviewId());
 
         if(reviewOpt.isPresent()) {
             return reviewStorage.editReview(review);
