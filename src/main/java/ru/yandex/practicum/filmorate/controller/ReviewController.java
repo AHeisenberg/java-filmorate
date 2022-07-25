@@ -12,18 +12,19 @@ import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-@RequestMapping("/reviews")
+@RequestMapping(value = "/reviews")
+@RestController
 public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping
+    @PostMapping()
     public ResponseEntity<Review> addReview(@RequestBody Review review) {
         Review review1 = reviewService.addReview(review);
         return new ResponseEntity<>(review1, HttpStatus.OK);
     }
 
-    @PutMapping
+    @PutMapping()
     public ResponseEntity<Review> editReview(@RequestBody Review review) {
         Review review1 = reviewService.editReview(review);
         return new ResponseEntity<>(review1, HttpStatus.OK);
@@ -56,12 +57,12 @@ public class ReviewController {
         return new ResponseEntity<>(reviewService.deleteLike(id, userId), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}/like/{userId}")
+    @DeleteMapping("/{id}/Dislike/{userId}")
     public ResponseEntity<Optional<Review>> deleteDislike(@PathVariable long id, @PathVariable long userId) {
         return new ResponseEntity<>(reviewService.deleteDislike(id, userId), HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping()
     public ResponseEntity<List<Review>> getReviewsOfFilm (@RequestParam(required = false) Optional<Long> filmId,
                                                           @RequestParam(required = false) Optional<Long> countOpt) {
 
