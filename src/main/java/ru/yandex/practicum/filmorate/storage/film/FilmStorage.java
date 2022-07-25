@@ -25,5 +25,17 @@ public interface FilmStorage {
     boolean addLike(long id, long userId);
 
     Map<Long, Set<Long>> getUserLikes();
+<<<<<<< HEAD
+=======
+    List<Film> getFilmsBySubstring(String query, String by);
+
+    List<Film> getTopLikableFilms(long count);
+
+    List<Film> getTopFilmsByYear(long count, int year);
+
+    List<Film> getTopFilmsByGenre(long count, int genreId);
+
+    List<Film> getTopFilmsByGenreAndYear(long count, int genreId, int year);
+>>>>>>> develop
 
 }

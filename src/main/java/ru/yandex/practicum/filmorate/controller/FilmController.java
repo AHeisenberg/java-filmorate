@@ -12,6 +12,8 @@ import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
+import java.util.Optional;
+
 
 @RestController
 @RequestMapping(value = "/films")
@@ -69,9 +71,50 @@ public class FilmController {
                 : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/popular")
-    public ResponseEntity<List<Film>> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
-        return new ResponseEntity<>(filmService.findPopularFilms(count), HttpStatus.OK);
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<List<Film>> getDirectorsFilmSortedByYearOrLikes(@PathVariable long directorId,
+                                                                          @RequestParam(defaultValue = "id")
+                                                                          String sortBy) {
+        if (directorService.getDirector(directorId).isPresent()) {
+            if (sortBy.equals("year")) {
+                return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByYear(directorId, "year"),
+                        HttpStatus.OK);
+            } else if (sortBy.equals("likes")) {
+                return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByLikes(directorId, "likes"),
+                        HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(filmService.getAllFilmsByDirector(directorId, "id"), HttpStatus.OK);
+            }
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Film>> getFilmsBySubstring(@RequestParam String query, @RequestParam String by) {
+        return new ResponseEntity<>(filmService.getFilmsBySubstring(query, by), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/popular")
+    public ResponseEntity<List<Film>> getPopularFilms(@RequestParam(defaultValue = "10") long count,
+                                                      @RequestParam Optional<Integer> genreId,
+                                                      @RequestParam Optional<Integer> year) {
+        if (genreId.isPresent() && year.isPresent()) {
+            return filmService.getTopFilmsByGenreAndYear(count, genreId.get(), year.get())
+                    .map(films -> new ResponseEntity<>(films, HttpStatus.OK))
+                    .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+        } else if (genreId.isPresent()) {
+            return filmService.getTopFilmsByGenre(count, genreId.get())
+                    .map(films -> new ResponseEntity<>(films, HttpStatus.OK))
+                    .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+        } else if (year.isPresent()) {
+            return filmService.getTopFilmsByYear(count, year.get())
+                    .map(films -> new ResponseEntity<>(films, HttpStatus.OK))
+                    .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+        } else {
+            return new ResponseEntity<>(filmService.getTopLikableFilms(count), HttpStatus.OK);
+        }
     }
 
     @GetMapping("/director/{directorId}")

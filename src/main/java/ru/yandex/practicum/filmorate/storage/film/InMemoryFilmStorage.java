@@ -104,6 +104,52 @@ public class InMemoryFilmStorage implements FilmStorage {
             }
         }
         return filmsByDirector;
+    }
 
+    @Override
+    public List<Film> getTopLikableFilms(long count) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByYear(long count, int year) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByGenre(long count, int genreId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByGenreAndYear(long count, int genreId, int year) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getFilmsBySubstring(String query, String by) {
+        List<Film> films = new ArrayList<>();
+        if(by.contains(",")) {
+            for(Film film : getAllFilms()) {
+                if(film.getName().contains(query) || directors.get(film.getId()).getName().contains(query)) {
+                    films.add(film);
+                }
+            }
+        } else {
+            if(by.contains("director")) {
+                for(Film film : getAllFilms()) {
+                    if(directors.get(film.getId()).getName().contains(query)) {
+                        films.add(film);
+                    }
+                }
+            } else {
+                for(Film film : getAllFilms()) {
+                    if(film.getName().contains(query)) {
+                        films.add(film);
+                    }
+                }
+            }
+        }
+        return films;
     }
 }
