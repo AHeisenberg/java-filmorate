@@ -90,6 +90,12 @@ public class FilmController {
         }
     }
 
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Film>> getFilmsBySubstring(@RequestParam String query, @RequestParam String by) {
+        return new ResponseEntity<>(filmService.getFilmsBySubstring(query, by), HttpStatus.OK);
+    }
+
     @GetMapping(value = "/popular")
     public ResponseEntity<List<Film>> getPopularFilms(@RequestParam(defaultValue = "10") long count,
                                                       @RequestParam Optional<Integer> genreId,
