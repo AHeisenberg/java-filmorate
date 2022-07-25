@@ -86,9 +86,6 @@ public class FilmService {
     public List<Film> getAllFilmsByDirectorSortedByLikes(long id, String sortBy) {
         return filmStorage.getAllFilmsByDirector(id, sortBy);
     }
-<<<<<<< HEAD
-=======
-
 
     public List<Film> getFilmsBySubstring(String query, String by) {
         return filmStorage.getFilmsBySubstring(query, by);
@@ -114,5 +111,4 @@ public class FilmService {
                 ? Optional.of(filmStorage.getTopFilmsByGenreAndYear(count, genreId, year))
                 : Optional.empty();
     }
->>>>>>> develop
 }

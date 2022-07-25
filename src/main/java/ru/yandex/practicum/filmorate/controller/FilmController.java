@@ -74,7 +74,7 @@ public class FilmController {
     @GetMapping("/director/{directorId}")
     public ResponseEntity<List<Film>> getDirectorsFilmSortedByYearOrLikes(@PathVariable long directorId,
                                                                           @RequestParam(defaultValue = "id")
-                                                                          String sortBy) {
+                                                                                  String sortBy) {
         if (directorService.getDirector(directorId).isPresent()) {
             if (sortBy.equals("year")) {
                 return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByYear(directorId, "year"),
@@ -114,25 +114,6 @@ public class FilmController {
                     .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
         } else {
             return new ResponseEntity<>(filmService.getTopLikableFilms(count), HttpStatus.OK);
-        }
-    }
-
-    @GetMapping("/director/{directorId}")
-    public ResponseEntity<List<Film>> getDirectorsFilmSortedByYearOrLikes(@PathVariable long directorId,
-                                                                          @RequestParam(defaultValue = "id")
-                                                                          String sortBy) {
-        if (directorService.getDirector(directorId).isPresent()) {
-            if (sortBy.equals("year")) {
-                return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByYear(directorId, "year"),
-                        HttpStatus.OK);
-            } else if (sortBy.equals("likes")) {
-                return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByLikes(directorId, "likes"),
-                        HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(filmService.getAllFilmsByDirector(directorId, "id"), HttpStatus.OK);
-            }
-        } else {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 }
