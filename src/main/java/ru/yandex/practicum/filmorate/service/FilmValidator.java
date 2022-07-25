@@ -71,6 +71,8 @@ public class FilmValidator {
                 genre.setName(genreStorage.getGenres().get(genre.getId()).getName());
             }
             film.setGenres(treeSet);
+        } else {
+            film.setGenres(null);
         }
     }
 
