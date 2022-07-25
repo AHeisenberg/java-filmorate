@@ -61,11 +61,15 @@ public class FilmDbStorage implements FilmStorage {
     private static final String FIND_TOP_FILMS_BY_YEAR_AND_GENRE = "SELECT * FROM films WHERE film_id IN " +
             "(SELECT film_id FROM films_genres WHERE genre_id = ?) AND EXTRACT(YEAR FROM release_date) = ? " +
             "ORDER BY likes_count DESC LIMIT ?";
+    private static final String GET_FILM_BY_USER = "SELECT * FROM films WHERE film_id IN " +
+            "(SELECT film_id FROM likes WHERE user_id = ?) ORDER BY likes_count DESC";
 
     private static final String SQL_GET_FILMS_BY_SUBSTRING_NAME = "SELECT * FROM films WHERE LOWER(name) LIKE ?";
+
     private static final String SQL_GET_FILMS_BY_SUBSTRING_DIRECTOR = "SELECT f.* FROM films AS f JOIN " +
             "film_directors AS fd ON f.film_id = fd.film_id JOIN directors AS d ON fd.director_id = d.director_id " +
             "WHERE LOWER(d.director_name) LIKE ?";
+
     private static final String SQL_GET_FILMS_BY_SUBSTRING_NAME_DIR = "SELECT f.* FROM films AS f JOIN " +
             "film_directors AS fd ON f.film_id = fd.film_id JOIN directors AS d ON d.director_id = fd.director_id " +
             "WHERE LOWER(d.director_name) LIKE ? OR LOWER(f.name) LIKE ?";
@@ -307,6 +311,14 @@ public class FilmDbStorage implements FilmStorage {
         }
         return films;
     }
+
+    @Override
+    public List<Film> getTopFilmsByUser(long userId) {
+        List<Film> films = jdbcTemplate.query(GET_FILM_BY_USER, this::mapRowToFilm, userId);
+        films.forEach(f -> f.setGenres(setGenresToFilm(f.getId())));
+        return films;
+    }
+
 }
 
 

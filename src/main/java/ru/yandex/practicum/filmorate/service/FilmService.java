@@ -90,6 +90,7 @@ public class FilmService {
     public List<Film> getFilmsBySubstring(String query, String by) {
         return filmStorage.getFilmsBySubstring(query, by);
     }
+
     public List<Film> getTopLikableFilms(long count) {
         return filmStorage.getTopLikableFilms(count);
     }
@@ -111,4 +112,12 @@ public class FilmService {
                 ? Optional.of(filmStorage.getTopFilmsByGenreAndYear(count, genreId, year))
                 : Optional.empty();
     }
+
+    public Optional<List<Film>> getTopCommonFilms(long userId, long friendId) {
+        return userService.getUser(userId).isPresent() && userService.getUser(friendId).isPresent()
+                ? Optional.of(filmStorage.getTopFilmsByUser(userId).stream().filter(filmStorage.getTopFilmsByUser(friendId)::contains).collect(Collectors.toList()))
+                : Optional.empty();
+
+    }
+
 }
