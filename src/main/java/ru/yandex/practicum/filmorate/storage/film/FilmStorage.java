@@ -36,4 +36,7 @@ public interface FilmStorage {
 
     List<Film> getTopFilmsByUser(long userId);
 
+    List<Film> getFilmsBySubstring(String query, String by);
+
+
 }

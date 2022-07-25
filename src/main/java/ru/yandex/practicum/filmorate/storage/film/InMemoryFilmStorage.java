@@ -132,4 +132,30 @@ public class InMemoryFilmStorage implements FilmStorage {
         return null;
     }
 
+    @Override
+    public List<Film> getFilmsBySubstring(String query, String by) {
+        List<Film> films = new ArrayList<>();
+        if(by.contains(",")) {
+            for(Film film : getAllFilms()) {
+                if(film.getName().contains(query) || directors.get(film.getId()).getName().contains(query)) {
+                    films.add(film);
+                }
+            }
+        } else {
+            if(by.contains("director")) {
+                for(Film film : getAllFilms()) {
+                    if(directors.get(film.getId()).getName().contains(query)) {
+                        films.add(film);
+                    }
+                }
+            } else {
+                for(Film film : getAllFilms()) {
+                    if(film.getName().contains(query)) {
+                        films.add(film);
+                    }
+                }
+            }
+        }
+        return films;
+    }
 }
