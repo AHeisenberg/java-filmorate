@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class FilmValidator {
 
-    private static final LocalDate DATE_OF_FILM_RELEASE = LocalDate.of(1895, Month.DECEMBER, 28);
+    public static final LocalDate DATE_OF_FILM_RELEASE = LocalDate.of(1895, Month.DECEMBER, 28);
     private static InMemoryMPAStorage mpaStorage;
     private static InMemoryGenreStorage genreStorage;
 
@@ -71,6 +71,8 @@ public class FilmValidator {
                 genre.setName(genreStorage.getGenres().get(genre.getId()).getName());
             }
             film.setGenres(treeSet);
+        } else {
+            film.setGenres(null);
         }
     }
 

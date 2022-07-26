@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.*;
 
@@ -22,9 +24,12 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Set<Long>> likes;
 
+    private final Map<Long, Director> directors;
+
     public InMemoryFilmStorage() {
         films = new HashMap<>();
         likes = new HashMap<>();
+        directors = new HashMap<>();
     }
 
     @Override
@@ -86,5 +91,72 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         films.get(id).setLikesCount(likes.get(id).size());
         return true;
+    }
+
+    @Override
+    public Map<Long, Set<Long>> getUserLikes() {
+        return null;
+    }
+
+    public List<Film> getAllFilmsByDirector(long id, String sortBy) {
+        List<Film> filmsByDirector = new ArrayList<>();
+        for (Long filmId : directors.keySet()) {
+            if (directors.get(filmId).getId() == id) {
+                filmsByDirector.add(films.get(filmId));
+            }
+        }
+        return filmsByDirector;
+    }
+
+    @Override
+    public List<Film> getTopLikableFilms(long count) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByYear(long count, int year) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByGenre(long count, int genreId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByGenreAndYear(long count, int genreId, int year) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByUser(long userId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getFilmsBySubstring(String query, String by) {
+        List<Film> films = new ArrayList<>();
+        if(by.contains(",")) {
+            for(Film film : getAllFilms()) {
+                if(film.getName().contains(query) || directors.get(film.getId()).getName().contains(query)) {
+                    films.add(film);
+                }
+            }
+        } else {
+            if(by.contains("director")) {
+                for(Film film : getAllFilms()) {
+                    if(directors.get(film.getId()).getName().contains(query)) {
+                        films.add(film);
+                    }
+                }
+            } else {
+                for(Film film : getAllFilms()) {
+                    if(film.getName().contains(query)) {
+                        films.add(film);
+                    }
+                }
+            }
+        }
+        return films;
     }
 }
