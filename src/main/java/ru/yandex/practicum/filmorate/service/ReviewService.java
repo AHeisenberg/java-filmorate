@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @Service
 public class ReviewService {
-    private final ReviewStorage reviewStorage;
+private final ReviewStorage reviewStorage;
     private final UserService userService;
     private final FilmService filmService;
     private final EventStorage eventStorage;
@@ -56,7 +56,7 @@ public class ReviewService {
 
     public Optional<Review> editReview(Review review) {
         Optional<Review> reviewOpt = reviewStorage.getReview(review.getReviewId());
-        if (reviewOpt.isPresent()) {
+if (reviewOpt.isPresent()) {
             Optional<Review> updatedReview = reviewStorage.editReview(review);
             eventStorage.addEvent(updatedReview.get().getUserId(), updatedReview.get().getReviewId(),
                     Event.EventType.REVIEW, Event.Operation.UPDATE);
