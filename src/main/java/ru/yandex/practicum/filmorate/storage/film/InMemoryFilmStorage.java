@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.*;
 
@@ -135,28 +134,37 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmsBySubstring(String query, String by) {
-        List<Film> films = new ArrayList<>();
+        List<Film> findFilms = new ArrayList<>();
         if(by.contains(",")) {
             for(Film film : getAllFilms()) {
-                if(film.getName().contains(query) || directors.get(film.getId()).getName().contains(query)) {
-                    films.add(film);
+                if(isContainFilmName(query, film) || isContainDirectorName(query, film)) {
+                    findFilms.add(film);
                 }
             }
         } else {
             if(by.contains("director")) {
                 for(Film film : getAllFilms()) {
-                    if(directors.get(film.getId()).getName().contains(query)) {
-                        films.add(film);
+                    if(isContainDirectorName(query, film)) {
+                        findFilms.add(film);
                     }
                 }
             } else {
                 for(Film film : getAllFilms()) {
-                    if(film.getName().contains(query)) {
-                        films.add(film);
+                    if(isContainFilmName(query, film)) {
+                        findFilms.add(film);
                     }
                 }
             }
         }
-        return films;
+        return findFilms;
+    }
+
+    private boolean isContainFilmName(String query, Film film) {
+        return film.getName().contains(query);
+    }
+
+    private boolean isContainDirectorName(String query, Film film) {
+        return directors.get(film.getId()).getName().contains(query);
     }
 }
+
