@@ -109,7 +109,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getTopLikableFilms(long count) {
+    public List<Film> getTopLikeableFilms(long count) {
         return null;
     }
 

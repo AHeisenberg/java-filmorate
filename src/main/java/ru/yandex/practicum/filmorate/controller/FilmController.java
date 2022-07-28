@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @RestController
@@ -47,7 +46,6 @@ public class FilmController {
                 .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
     }
 
-
     @GetMapping
     public ResponseEntity<List<Film>> getAll() {
         return new ResponseEntity<>(filmService.getAllFilms(), HttpStatus.OK);
@@ -74,7 +72,7 @@ public class FilmController {
     @GetMapping("/director/{directorId}")
     public ResponseEntity<List<Film>> getDirectorsFilmSortedByYearOrLikes(@PathVariable long directorId,
                                                                           @RequestParam(defaultValue = "id")
-                                                                                  String sortBy) {
+                                                                          String sortBy) {
         if (directorService.getDirector(directorId).isPresent()) {
             if (sortBy.equals("year")) {
                 return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByYear(directorId, "year"),
@@ -90,7 +88,6 @@ public class FilmController {
         }
     }
 
-
     @GetMapping("/search")
     public ResponseEntity<List<Film>> getFilmsBySubstring(@RequestParam String query, @RequestParam String by) {
         return new ResponseEntity<>(filmService.getFilmsBySubstring(query, by), HttpStatus.OK);
@@ -98,17 +95,9 @@ public class FilmController {
 
     @GetMapping("/popular")
     public ResponseEntity<List<Film>> getPopularFilms(@RequestParam(defaultValue = "10") long count,
-                                                      @RequestParam Optional<Integer> genreId,
-                                                      @RequestParam Optional<Integer> year) {
-        if (genreId.isPresent() && year.isPresent()) {
-            return filmService.getTopFilmsByGenreAndYear(count, genreId.get(), year.get())
-                    .map(films -> new ResponseEntity<>(films, HttpStatus.OK))
-                    .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
-        } else return genreId.map(integer -> filmService.getTopFilmsByGenre(count, integer)
-                .map(films -> new ResponseEntity<>(films, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND))).orElseGet(() -> year.map(integer -> filmService.getTopFilmsByYear(count, integer)
-                .map(films -> new ResponseEntity<>(films, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND))).orElseGet(() -> new ResponseEntity<>(filmService.getTopLikableFilms(count), HttpStatus.OK)));
+                                                      @RequestParam(required = false, defaultValue = "-1") int genreId,
+                                                      @RequestParam(required = false, defaultValue = "-1") int year) {
+        return new ResponseEntity<>(filmService.getPopularFilms(count, genreId, year).get(), HttpStatus.OK);
     }
 
     @GetMapping("/common")
@@ -116,6 +105,5 @@ public class FilmController {
         return filmService.getTopCommonFilms(userId, friendId).map(film -> new ResponseEntity<>(film, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
     }
-
 
 }

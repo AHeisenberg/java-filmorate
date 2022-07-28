@@ -98,7 +98,7 @@ public class FilmService {
     }
 
     public List<Film> getTopLikableFilms(long count) {
-        return filmStorage.getTopLikableFilms(count);
+        return filmStorage.getTopLikeableFilms(count);
     }
 
     public Optional<List<Film>> getTopFilmsByYear(long count, int year) {
@@ -117,6 +117,21 @@ public class FilmService {
         return genreStorage.getGenre(genreId).isPresent() && year > DATE_OF_FILM_RELEASE.getYear()
                 ? Optional.of(filmStorage.getTopFilmsByGenreAndYear(count, genreId, year))
                 : Optional.empty();
+    }
+
+    public Optional<List<Film>> getPopularFilms(long count, int genreId, int year) {
+        if (genreId != -1 && year != -1) {
+            return getTopFilmsByGenreAndYear(count, genreId, year);
+
+        } else if (genreId != -1) {
+            return getTopFilmsByGenre(count, genreId);
+
+        } else if (year != -1) {
+            return getTopFilmsByYear(count, year);
+
+        } else {
+            return Optional.of(getTopLikableFilms(count));
+        }
     }
 
     public Optional<List<Film>> getTopCommonFilms(long userId, long friendId) {
