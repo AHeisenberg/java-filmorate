@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MPAStorage;
 
@@ -47,11 +46,11 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SQL_GET_DIRECTOR_BY_ID = "SELECT * FROM directors JOIN film_directors " +
             "AS fd ON directors.director_id = fd.director_id WHERE fd.film_id = ?";
     private static final String SQL_DELETE_DIRECTORS = "DELETE FROM film_directors WHERE film_id = ?";
-    private static final String SQL_DIRECTORS_FILM_BY_ID = "SELECT f.*, fd.director_id FROM films AS f " +
+    private static final String SQL_DIRECTORS_FILM_ORDER_BY_FILM_ID = "SELECT f.*, fd.director_id FROM films AS f " +
             "JOIN film_directors AS fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY f.film_id";
-    private static final String SQL_DIRECTORS_FILM_BY_YEAR = "SELECT f.*, fd.director_id FROM films AS f " +
+    private static final String SQL_DIRECTORS_FILM_ORDER_BY_YEAR = "SELECT f.*, fd.director_id FROM films AS f " +
             "JOIN film_directors AS fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY f.release_date";
-    private static final String SQL_DIRECTORS_FILM_BY_LIKES = "SELECT f.*, fd.director_id FROM films AS f " +
+    private static final String SQL_DIRECTORS_FILM_ORDER_BY_LIKES = "SELECT f.*, fd.director_id FROM films AS f " +
             "JOIN film_directors AS fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY f.likes_count";
 
     private static final String SQL_GET_TOP_LIKEBLE_FILMS = "SELECT * FROM films ORDER BY likes_count DESC LIMIT ?";
@@ -141,7 +140,7 @@ public class FilmDbStorage implements FilmStorage {
             for (Director director : film.getDirectors()) {
                 jdbcTemplate.update(SQL_UPDATE_DIRECTORS_FILM, film.getId(), director.getId());
             }
-            film.setDirectors(setDirectorsToFilm(film.getId()));
+            film.setDirectors(getDirectorsByFilmId(film.getId()));
         }
         film.setGenres(setGenresToFilm(film.getId()));
         return isUpdated ? Optional.of(film) : Optional.empty();
@@ -154,7 +153,7 @@ public class FilmDbStorage implements FilmStorage {
         for (Film film : films) {
             long id = film.getId();
             film.setGenres(setGenresToFilm(id));
-            film.setDirectors(setDirectorsToFilm(id));
+            film.setDirectors(getDirectorsByFilmId(id));
         }
         return films;
     }
@@ -165,7 +164,7 @@ public class FilmDbStorage implements FilmStorage {
         Optional<Film> optFilm = result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
         if (optFilm.isPresent()) {
             optFilm.get().setGenres(setGenresToFilm(id));
-            optFilm.get().setDirectors(setDirectorsToFilm(optFilm.get().getId()));
+            optFilm.get().setDirectors(getDirectorsByFilmId(optFilm.get().getId()));
         }
         return optFilm;
     }
@@ -174,16 +173,16 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getAllFilmsByDirector(long id, String sortBy) {
         List<Film> films;
         if (sortBy.equals("id")) {
-            films = jdbcTemplate.query(SQL_DIRECTORS_FILM_BY_ID, this::mapRowToFilm, id);
+            films = jdbcTemplate.query(SQL_DIRECTORS_FILM_ORDER_BY_FILM_ID, this::mapRowToFilm, id);
         } else if (sortBy.equals("year")) {
-            films = jdbcTemplate.query(SQL_DIRECTORS_FILM_BY_YEAR, this::mapRowToFilm, id);
+            films = jdbcTemplate.query(SQL_DIRECTORS_FILM_ORDER_BY_YEAR, this::mapRowToFilm, id);
         } else {
-            films = jdbcTemplate.query(SQL_DIRECTORS_FILM_BY_LIKES, this::mapRowToFilm, id);
+            films = jdbcTemplate.query(SQL_DIRECTORS_FILM_ORDER_BY_LIKES, this::mapRowToFilm, id);
         }
         for (Film film : films) {
             long filmId = film.getId();
             film.setGenres(setGenresToFilm(filmId));
-            film.setDirectors(setDirectorsToFilm(filmId));
+            film.setDirectors(getDirectorsByFilmId(filmId));
         }
         return films;
     }
@@ -227,7 +226,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 
-    private Set<Director> setDirectorsToFilm(long id) {
+    private Set<Director> getDirectorsByFilmId(long id) {
         return new HashSet<>(jdbcTemplate.query(SQL_GET_DIRECTOR_BY_ID, this::mapRowToDirector, id));
     }
 
@@ -308,7 +307,7 @@ public class FilmDbStorage implements FilmStorage {
         for (Film film : films) {
             long id = film.getId();
             film.setGenres(setGenresToFilm(id));
-            film.setDirectors(setDirectorsToFilm(id));
+            film.setDirectors(getDirectorsByFilmId(id));
         }
         return films;
     }
