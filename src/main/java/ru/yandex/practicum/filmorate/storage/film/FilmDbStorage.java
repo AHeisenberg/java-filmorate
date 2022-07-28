@@ -160,7 +160,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> getFilm(long id) {
-        List<Film> result = jdbcTemplate.query(SQL_GET_FILM, this::mapRowToFilm, id);
+        List<Film> result = jdbcTemplate.query(SQL_GET_FILM, (resultSet, rowNum) -> mapRowToFilm(resultSet, rowNum), id);
         Optional<Film> optFilm = result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
         if (optFilm.isPresent()) {
             optFilm.get().setGenres(setGenresToFilm(id));
