@@ -74,15 +74,7 @@ public class FilmController {
                                                                           @RequestParam(defaultValue = "id")
                                                                           String sortBy) {
         if (directorService.getDirector(directorId).isPresent()) {
-            if (sortBy.equals("year")) {
-                return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByYear(directorId, "year"),
-                        HttpStatus.OK);
-            } else if (sortBy.equals("likes")) {
-                return new ResponseEntity<>(filmService.getAllFilmsByDirectorSortedByLikes(directorId, "likes"),
-                        HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(filmService.getAllFilmsByDirector(directorId, "id"), HttpStatus.OK);
-            }
+            return new ResponseEntity<>(filmService.getAllFilmsByDirector(directorId, sortBy), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
