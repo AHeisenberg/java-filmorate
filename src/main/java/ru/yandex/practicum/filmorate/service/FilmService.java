@@ -97,23 +97,23 @@ public class FilmService {
         return filmStorage.getFilmsBySubstring(query, by);
     }
 
-    public List<Film> getTopLikableFilms(long count) {
+    private List<Film> getTopLikableFilms(long count) {
         return filmStorage.getTopLikeableFilms(count);
     }
 
-    public Optional<List<Film>> getTopFilmsByYear(long count, int year) {
+    private Optional<List<Film>> getTopFilmsByYear(long count, int year) {
         return year > DATE_OF_FILM_RELEASE.getYear()
                 ? Optional.of(filmStorage.getTopFilmsByYear(count, year))
                 : Optional.empty();
     }
 
-    public Optional<List<Film>> getTopFilmsByGenre(long count, int genreId) {
+    private Optional<List<Film>> getTopFilmsByGenre(long count, int genreId) {
         return genreStorage.getGenre(genreId).isPresent()
                 ? Optional.of(filmStorage.getTopFilmsByGenre(count, genreId))
                 : Optional.empty();
     }
 
-    public Optional<List<Film>> getTopFilmsByGenreAndYear(long count, int genreId, int year) {
+    private Optional<List<Film>> getTopFilmsByGenreAndYear(long count, int genreId, int year) {
         return genreStorage.getGenre(genreId).isPresent() && year > DATE_OF_FILM_RELEASE.getYear()
                 ? Optional.of(filmStorage.getTopFilmsByGenreAndYear(count, genreId, year))
                 : Optional.empty();
