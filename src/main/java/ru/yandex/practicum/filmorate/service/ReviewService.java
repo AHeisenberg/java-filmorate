@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
@@ -31,7 +32,7 @@ private final ReviewStorage reviewStorage;
         this.eventStorage = eventStorage;
     }
 
-    public Optional<Review> addReview(Review review) {
+    public Review addReview(Review review) {
         Optional<Film> filmOpt = filmService.getFilm(review.getFilmId());
         Optional<User> userOpt = userService.getUser(review.getUserId());
 
@@ -46,7 +47,9 @@ private final ReviewStorage reviewStorage;
         if (filmOpt.isPresent() && userOpt.isPresent()) {
             Optional<Review> addedReview = reviewStorage.addReview(review);
             eventStorage.addEvent(review.getUserId(), addedReview.get().getReviewId(), Event.EventType.REVIEW, Event.Operation.ADD);
-            return addedReview;
+            return addedReview
+                    .stream()
+                    .collect(Collectors.toList()).get(0);
         } else if (filmOpt.isEmpty()) {
             throw new FilmNotFoundException();
         } else {
@@ -54,21 +57,25 @@ private final ReviewStorage reviewStorage;
         }
     }
 
-    public Optional<Review> editReview(Review review) {
+    public Review editReview(Review review) {
         Optional<Review> reviewOpt = reviewStorage.getReview(review.getReviewId());
-if (reviewOpt.isPresent()) {
+        if (reviewOpt.isPresent()) {
             Optional<Review> updatedReview = reviewStorage.editReview(review);
             eventStorage.addEvent(updatedReview.get().getUserId(), updatedReview.get().getReviewId(),
                     Event.EventType.REVIEW, Event.Operation.UPDATE);
-            return updatedReview;
+            return updatedReview
+                    .stream()
+                    .collect(Collectors.toList()).get(0);
         } else {
             throw new ReviewNotFoundException();
         }
     }
 
-    public Optional<Review> getReview(long id) {
+    public Review getReview(long id) {
         try {
-            return reviewStorage.getReview(id);
+            return reviewStorage.getReview(id)
+                    .stream()
+                    .collect(Collectors.toList()).get(0);
         } catch (Exception e) {
             throw new ReviewNotFoundException();
         }
@@ -84,43 +91,51 @@ if (reviewOpt.isPresent()) {
         }
     }
 
-    public Optional<Review> putLike(long reviewId, long userId) {
+    public Review putLike(long reviewId, long userId) {
 
         Optional<User> userOpt = userService.getUser(userId);
         reviewStorage.getReview(reviewId);
         if (userOpt.isPresent()) {
-            return reviewStorage.putLike(reviewId, userId);
+            return reviewStorage.putLike(reviewId, userId)
+                    .stream()
+                    .collect(Collectors.toList()).get(0);
         } else {
             throw new UserNotFoundException();
         }
     }
 
-    public Optional<Review> putDislike(long reviewId, long userId) {
+    public Review putDislike(long reviewId, long userId) {
         Optional<User> userOpt = userService.getUser(userId);
 
         reviewStorage.getReview(reviewId);
         if (userOpt.isPresent()) {
-            return reviewStorage.putDislike(reviewId, userId);
+            return reviewStorage.putDislike(reviewId, userId)
+                    .stream()
+                    .collect(Collectors.toList()).get(0);
         } else {
             throw new UserNotFoundException();
         }
     }
 
-    public Optional<Review> deleteLike(long reviewId, long userId) {
+    public Review deleteLike(long reviewId, long userId) {
         Optional<User> userOpt = userService.getUser(userId);
         reviewStorage.getReview(reviewId);
         if (userOpt.isPresent()) {
-            return reviewStorage.deleteLike(reviewId, userId);
+            return reviewStorage.deleteLike(reviewId, userId)
+                    .stream()
+                    .collect(Collectors.toList()).get(0);
         } else {
             throw new UserNotFoundException();
         }
     }
 
-    public Optional<Review> deleteDislike(long reviewId, long userId) {
+    public Review deleteDislike(long reviewId, long userId) {
         Optional<User> userOpt = userService.getUser(userId);
         reviewStorage.getReview(reviewId);
         if (userOpt.isPresent()) {
-            return reviewStorage.deleteDislike(reviewId, userId);
+            return reviewStorage.deleteDislike(reviewId, userId)
+                    .stream()
+                    .collect(Collectors.toList()).get(0);
         } else {
             throw new UserNotFoundException();
         }
