@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Repository
 public class ReviewDbStorage implements ReviewStorage {
 
-    JdbcTemplate jdbcTemplate;
+   private JdbcTemplate jdbcTemplate;
 
     @Autowired
     public ReviewDbStorage(JdbcTemplate jdbcTemplate) {
