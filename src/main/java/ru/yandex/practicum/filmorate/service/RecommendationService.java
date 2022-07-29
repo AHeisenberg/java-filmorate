@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class RecommendationService {
@@ -24,7 +25,6 @@ public class RecommendationService {
     public Set<Film> findRecommendedFilmsForUser(long id) {
         Map<Long, Set<Long>> crossingMoviesWithOtherUsers = findOtherUsersWithIntersectionsByUserId(id);
         Set<Long> resultFilmIds = new HashSet<>();
-        Set<Film> result = new HashSet<>();
 
         for (var entry : crossingMoviesWithOtherUsers.entrySet()) {
             Set<Long> userFilms = allLikes.get(id);
@@ -32,12 +32,9 @@ public class RecommendationService {
             otherUserFilms.removeAll(userFilms);
             resultFilmIds.addAll(otherUserFilms);
         }
-
-        for (var filmId : resultFilmIds) {
-            result.add(filmStorage.getFilm(filmId).get());
-        }
-        return result;
+        return resultFilmIds.stream().map(filmId -> filmStorage.getFilm(filmId).get()).collect(Collectors.toSet());
     }
+
 
     private Map<Long, Set<Long>> findOtherUsersWithIntersectionsByUserId(long id) {
         this.allLikes = filmStorage.getUserLikes();
@@ -45,16 +42,16 @@ public class RecommendationService {
         Map<Long, Set<Long>> result = new HashMap<>();
         Set<Long> crossroads = new HashSet<>();
 
-        for (var fst_entry : allLikes.entrySet()) {
-            if (fst_entry.getKey().equals(id)) {
+        for (var fstEntry : allLikes.entrySet()) {
+            if (fstEntry.getKey().equals(id)) {
                 continue;
             }
-            if (fst_entry.getValue().size() > crossroads.size()) {
-                crossroads = fst_entry.getValue();
+            if (fstEntry.getValue().size() > crossroads.size()) {
+                crossroads = fstEntry.getValue();
                 Set<Long> crossroadsCopy = new HashSet<>(crossroads);
                 crossroads.retainAll(userLikes);
                 if (crossroads.size() > 0 && result.size() < crossroads.size()) {
-                    result.put(fst_entry.getKey(), crossroadsCopy);
+                    result.put(fstEntry.getKey(), crossroadsCopy);
                 }
             }
         }

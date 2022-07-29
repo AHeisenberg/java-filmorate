@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MPAStorage;
 
@@ -54,7 +53,7 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SQL_DIRECTORS_FILM_BY_LIKES = "SELECT f.*, fd.director_id FROM films AS f " +
             "JOIN film_directors AS fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY f.likes_count";
 
-    private static final String SQL_GET_TOP_LIKEBLE_FILMS = "SELECT * FROM films ORDER BY likes_count DESC LIMIT ?";
+    private static final String SQL_GET_TOP_LIKEABLE_FILMS = "SELECT * FROM films ORDER BY likes_count DESC LIMIT ?";
     private static final String FIND_TOP_FILMS_BY_GENRE = "SELECT * FROM films WHERE film_id IN " +
             "(SELECT film_id FROM films_genres WHERE genre_id = ?) ORDER BY likes_count DESC LIMIT ?";
     private static final String FIND_TOP_FILMS_BY_YEAR = "SELECT * FROM films WHERE " +
@@ -214,7 +213,6 @@ public class FilmDbStorage implements FilmStorage {
 
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-
         return Film.builder()
                 .id(resultSet.getLong("film_id"))
                 .name(resultSet.getString("name"))
@@ -235,7 +233,6 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.queryForList(SQL_GENRE_QUERY, Long.class, id)
                 .stream()
                 .map(genreId -> genreStorage.getGenre(genreId).get())
-
                 .collect(Collectors.toSet());
     }
 
@@ -257,7 +254,6 @@ public class FilmDbStorage implements FilmStorage {
 
 
     private Director mapRowToDirector(ResultSet resultSet, int rowNum) throws SQLException {
-
         return Director.builder()
                 .id(resultSet.getInt("director_id"))
                 .name(resultSet.getString("director_name"))
@@ -266,8 +262,8 @@ public class FilmDbStorage implements FilmStorage {
 
 
     @Override
-    public List<Film> getTopLikableFilms(long count) {
-        List<Film> films = jdbcTemplate.query(SQL_GET_TOP_LIKEBLE_FILMS, this::mapRowToFilm, count);
+    public List<Film> getTopLikeableFilms(long count) {
+        List<Film> films = jdbcTemplate.query(SQL_GET_TOP_LIKEABLE_FILMS, this::mapRowToFilm, count);
         films.forEach(f -> f.setGenres(setGenresToFilm(f.getId())));
         return films;
     }
