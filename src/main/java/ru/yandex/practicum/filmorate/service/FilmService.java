@@ -89,25 +89,9 @@ public class FilmService {
         return filmStorage.getFilmsBySubstring(query, by);
     }
 
-    private List<Film> getTopLikableFilms(long count) {
-        return filmStorage.getTopLikeableFilms(count);
-    }
-
-    private Optional<List<Film>> getTopFilmsByYear(long count, int year) {
-        return year > DATE_OF_FILM_RELEASE.getYear()
-                ? Optional.of(filmStorage.getTopFilmsByYear(count, year))
-                : Optional.empty();
-    }
-
-    private Optional<List<Film>> getTopFilmsByGenre(long count, int genreId) {
-        return genreStorage.getGenre(genreId).isPresent()
-                ? Optional.of(filmStorage.getTopFilmsByGenre(count, genreId))
-                : Optional.empty();
-    }
-
-    private Optional<List<Film>> getTopFilmsByGenreAndYear(long count, int genreId, int year) {
-        return genreStorage.getGenre(genreId).isPresent() && year > DATE_OF_FILM_RELEASE.getYear()
-                ? Optional.of(filmStorage.getTopFilmsByGenreAndYear(count, genreId, year))
+    public Optional<List<Film>> getTopCommonFilms(long userId, long friendId) {
+        return userService.getUser(userId).isPresent() && userService.getUser(friendId).isPresent()
+                ? Optional.of(filmStorage.getTopFilmsByUser(userId).stream().filter(filmStorage.getTopFilmsByUser(friendId)::contains).collect(Collectors.toList()))
                 : Optional.empty();
     }
 
@@ -126,11 +110,25 @@ public class FilmService {
         }
     }
 
-    public Optional<List<Film>> getTopCommonFilms(long userId, long friendId) {
-        return userService.getUser(userId).isPresent() && userService.getUser(friendId).isPresent()
-                ? Optional.of(filmStorage.getTopFilmsByUser(userId).stream().filter(filmStorage.getTopFilmsByUser(friendId)::contains).collect(Collectors.toList()))
+    private Optional<List<Film>> getTopFilmsByGenreAndYear(long count, int genreId, int year) {
+        return genreStorage.getGenre(genreId).isPresent() && year > DATE_OF_FILM_RELEASE.getYear()
+                ? Optional.of(filmStorage.getTopFilmsByGenreAndYear(count, genreId, year))
                 : Optional.empty();
-
     }
 
+    private Optional<List<Film>> getTopFilmsByGenre(long count, int genreId) {
+        return genreStorage.getGenre(genreId).isPresent()
+                ? Optional.of(filmStorage.getTopFilmsByGenre(count, genreId))
+                : Optional.empty();
+    }
+
+    private Optional<List<Film>> getTopFilmsByYear(long count, int year) {
+        return year > DATE_OF_FILM_RELEASE.getYear()
+                ? Optional.of(filmStorage.getTopFilmsByYear(count, year))
+                : Optional.empty();
+    }
+
+    private List<Film> getTopLikableFilms(long count) {
+        return filmStorage.getTopLikeableFilms(count);
+    }
 }
