@@ -47,9 +47,7 @@ private final ReviewStorage reviewStorage;
         if (filmOpt.isPresent() && userOpt.isPresent()) {
             Optional<Review> addedReview = reviewStorage.addReview(review);
             eventStorage.addEvent(review.getUserId(), addedReview.get().getReviewId(), Event.EventType.REVIEW, Event.Operation.ADD);
-            return addedReview
-                    .stream()
-                    .collect(Collectors.toList()).get(0);
+            return optionalConvertToReview(addedReview);
         } else if (filmOpt.isEmpty()) {
             throw new FilmNotFoundException();
         } else {
@@ -63,9 +61,8 @@ private final ReviewStorage reviewStorage;
             Optional<Review> updatedReview = reviewStorage.editReview(review);
             eventStorage.addEvent(updatedReview.get().getUserId(), updatedReview.get().getReviewId(),
                     Event.EventType.REVIEW, Event.Operation.UPDATE);
-            return updatedReview
-                    .stream()
-                    .collect(Collectors.toList()).get(0);
+            return optionalConvertToReview(updatedReview);
+
         } else {
             throw new ReviewNotFoundException();
         }
@@ -73,9 +70,7 @@ private final ReviewStorage reviewStorage;
 
     public Review getReview(long id) {
         try {
-            return reviewStorage.getReview(id)
-                    .stream()
-                    .collect(Collectors.toList()).get(0);
+            return optionalConvertToReview(reviewStorage.getReview(id));
         } catch (Exception e) {
             throw new ReviewNotFoundException();
         }
@@ -96,9 +91,7 @@ private final ReviewStorage reviewStorage;
         Optional<User> userOpt = userService.getUser(userId);
         reviewStorage.getReview(reviewId);
         if (userOpt.isPresent()) {
-            return reviewStorage.putLike(reviewId, userId)
-                    .stream()
-                    .collect(Collectors.toList()).get(0);
+            return optionalConvertToReview(reviewStorage.putLike(reviewId, userId));
         } else {
             throw new UserNotFoundException();
         }
@@ -109,9 +102,7 @@ private final ReviewStorage reviewStorage;
 
         reviewStorage.getReview(reviewId);
         if (userOpt.isPresent()) {
-            return reviewStorage.putDislike(reviewId, userId)
-                    .stream()
-                    .collect(Collectors.toList()).get(0);
+            return optionalConvertToReview(reviewStorage.putDislike(reviewId, userId));
         } else {
             throw new UserNotFoundException();
         }
@@ -121,9 +112,8 @@ private final ReviewStorage reviewStorage;
         Optional<User> userOpt = userService.getUser(userId);
         reviewStorage.getReview(reviewId);
         if (userOpt.isPresent()) {
-            return reviewStorage.deleteLike(reviewId, userId)
-                    .stream()
-                    .collect(Collectors.toList()).get(0);
+            return optionalConvertToReview(reviewStorage.deleteLike(reviewId, userId));
+
         } else {
             throw new UserNotFoundException();
         }
@@ -133,9 +123,8 @@ private final ReviewStorage reviewStorage;
         Optional<User> userOpt = userService.getUser(userId);
         reviewStorage.getReview(reviewId);
         if (userOpt.isPresent()) {
-            return reviewStorage.deleteDislike(reviewId, userId)
-                    .stream()
-                    .collect(Collectors.toList()).get(0);
+            return optionalConvertToReview(reviewStorage.deleteDislike(reviewId, userId));
+
         } else {
             throw new UserNotFoundException();
         }
@@ -145,6 +134,11 @@ private final ReviewStorage reviewStorage;
         Long count = countOpt.orElse(10L);
         Long filmId = filmIdOpt.orElse(null);
         return reviewStorage.getReviewsOfFilm(filmId, count);
+    }
+
+    private Review optionalConvertToReview(Optional<Review> review) {
+       return review.stream()
+                    .collect(Collectors.toList()).get(0);
     }
 
 }
