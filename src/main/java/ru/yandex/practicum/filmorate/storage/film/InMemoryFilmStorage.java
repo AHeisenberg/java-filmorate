@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
@@ -22,9 +23,12 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Set<Long>> likes;
 
+    private final Map<Long, Director> directors;
+
     public InMemoryFilmStorage() {
         films = new HashMap<>();
         likes = new HashMap<>();
+        directors = new HashMap<>();
     }
 
     @Override
@@ -87,4 +91,80 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.get(id).setLikesCount(likes.get(id).size());
         return true;
     }
+
+    @Override
+    public Map<Long, Set<Long>> getUserLikes() {
+        return null;
+    }
+
+    public List<Film> getAllFilmsByDirector(long id, String sortBy) {
+        List<Film> filmsByDirector = new ArrayList<>();
+        directors.forEach((key, value) -> {
+            if (value.getId() == id) {
+                filmsByDirector.add(films.get(key));
+            }
+        });
+        return filmsByDirector;
+    }
+
+    @Override
+    public List<Film> getTopLikeableFilms(long count) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByYear(long count, int year) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByGenre(long count, int genreId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByGenreAndYear(long count, int genreId, int year) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getTopFilmsByUser(long userId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getFilmsBySubstring(String query, String by) {
+        List<Film> findFilms = new ArrayList<>();
+        if(by.contains(",")) {
+            for(Film film : getAllFilms()) {
+                if(isContainFilmName(query, film) || isContainDirectorName(query, film)) {
+                    findFilms.add(film);
+                }
+            }
+        } else {
+            if(by.contains("director")) {
+                for(Film film : getAllFilms()) {
+                    if(isContainDirectorName(query, film)) {
+                        findFilms.add(film);
+                    }
+                }
+            } else {
+                for(Film film : getAllFilms()) {
+                    if(isContainFilmName(query, film)) {
+                        findFilms.add(film);
+                    }
+                }
+            }
+        }
+        return findFilms;
+    }
+
+    private boolean isContainFilmName(String query, Film film) {
+        return film.getName().contains(query);
+    }
+
+    private boolean isContainDirectorName(String query, Film film) {
+        return directors.get(film.getId()).getName().contains(query);
+    }
 }
+

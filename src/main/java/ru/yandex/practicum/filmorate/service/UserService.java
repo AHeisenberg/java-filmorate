@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
@@ -16,10 +18,12 @@ import static ru.yandex.practicum.filmorate.service.UserValidator.checkUser;
 public class UserService {
 
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) { // inMemoryUserStorage
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, EventStorage eventStorage) { // inMemoryUserStorage
         this.userStorage = userStorage;
+        this.eventStorage = eventStorage;
     }
 
     public User addUser(User user) {
@@ -48,6 +52,7 @@ public class UserService {
         Optional<User> optFriend = userStorage.getUser(friendId);
 
         if (optUser.isPresent() && optFriend.isPresent()) {
+            eventStorage.addEvent(id, friendId, Event.EventType.FRIEND, Event.Operation.ADD);
             return userStorage.addFriend(id, friendId);
         }
         return false;
@@ -58,6 +63,7 @@ public class UserService {
         Optional<User> friend = userStorage.getUser(friendId);
 
         if (user.isPresent() && friend.isPresent()) {
+            eventStorage.addEvent(id, friendId, Event.EventType.FRIEND, Event.Operation.REMOVE);
             return userStorage.removeFriend(id, friendId);
         }
         return false;
